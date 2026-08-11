@@ -1,17 +1,258 @@
 {
   "common": {
     "appName": "YiQuanTea",
-    "slogan": "Whole Leaf · Pure Nature",
+    "slogan": "Feuille entière · Nature pure",
     "loading": "Chargement...",
-    "placeholder": "Placeholder - full translations will be written in Stage 7"
+    "back": "Retour",
+    "noData": "Aucune donnée disponible",
+    "previousPage": "Page précédente",
+    "nextPage": "Page suivante",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "close": "Fermer",
+    "retry": "Réessayer",
+    "viewAll": "Tout afficher",
+    "more": "Plus",
+    "yes": "Oui",
+    "no": "Non",
+    "required": "Obligatoire",
+    "saveSuccess": "Enregistré avec succès",
+    "operationFailed": "Échec de l'opération",
+    "networkError": "Erreur réseau, veuillez réessayer"
   },
   "nav": {
     "home": "Accueil",
     "products": "Produits",
-    "b2b": "B2B",
+    "b2b": "Produits B2B",
     "about": "À propos",
     "certifications": "Certifications",
     "contact": "Contact",
     "language": "Langue"
+  },
+  "home": {
+    "slogan": "Feuille entière · Nature pure",
+    "viewAllProducts": "Voir tous les produits",
+    "b2bEntry": {
+      "title": "Produits B2B",
+      "desc": "Produits exclusifs pour clients grossistes",
+      "btn": "Entrer"
+    },
+    "categories": {
+      "title": "Catégories de produits"
+    },
+    "sellingPoints": {
+      "title": "Pourquoi nous choisir"
+    },
+    "certifications": {
+      "title": "Certifications"
+    },
+    "reviews": {
+      "title": "Avis clients"
+    },
+    "cta": {
+      "title": "Prêt à commencer ?",
+      "inquiry": "Envoyer une demande",
+      "sample": "Demander un échantillon"
+    }
+  },
+  "b2b": {
+    "pageTitle": "Produits B2B",
+    "pageSubtitle": "Produits exclusifs pour clients grossistes",
+    "pageHint": "Veuillez sélectionner une catégorie de produits",
+    "noCategories": "Aucune catégorie disponible pour le moment",
+    "categoryEnter": "Entrer →",
+    "backToCategories": "Retour aux catégories B2B",
+    "productsInCategory": "Produits de cette catégorie",
+    "passwordRequired": "Mot de passe requis"
+  },
+  "b2bPassword": {
+    "title": "Saisissez le mot de passe",
+    "subtitle": "Saisissez le mot de passe pour voir les produits",
+    "placeholder": "Saisissez le mot de passe",
+    "confirm": "Confirmer",
+    "wrong": "Mot de passe incorrect, veuillez réessayer",
+    "locked": "Trop de tentatives. Veuillez réessayer dans 30 minutes",
+    "noAccess": "Pas de mot de passe ? Contactez notre équipe commerciale",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "expired": "Accès expiré. Veuillez saisir à nouveau le mot de passe"
+  },
+  "sample": {
+    "pageTitle": "Demander des échantillons gratuits",
+    "name": "Nom *",
+    "email": "E-mail *",
+    "phone": "Téléphone",
+    "company": "Entreprise",
+    "country": "Pays",
+    "address": "Adresse de livraison *",
+    "product": "Produit d'intérêt",
+    "quantity": "Quantité",
+    "message": "Message",
+    "submit": "Envoyer la demande",
+    "success": "Demande envoyée ! Nous vous contacterons sous 24 heures.",
+    "hint": {
+      "free": "Échantillons gratuits, frais d'expédition à la charge de l'acheteur",
+      "reply": "Nous répondrons sous 24 heures",
+      "privacy": "Vos informations sont protégées et jamais partagées"
+    }
+  },
+  "gdpr": {
+    "title": "Ce site utilise des cookies",
+    "description": "Nous utilisons des cookies pour améliorer votre expérience de navigation et analyser le trafic. En continuant votre navigation, vous acceptez notre utilisation des cookies conformément à la Politique de confidentialité.",
+    "learnMore": "En savoir plus : Politique de confidentialité →",
+    "necessary": "Cookies nécessaires (toujours actifs)",
+    "analytics": "Cookies d'analyse",
+    "marketing": "Cookies marketing",
+    "acceptNecessary": "Accepter uniquement les nécessaires",
+    "acceptAll": "Tout accepter",
+    "rejectAll": "Tout refuser"
+  },
+  "product": {
+    "price": "Prix",
+    "priceCNY": "Prix (CNY)",
+    "priceUSD": "Prix (USD)",
+    "spec": "Spécification",
+    "specs": "Caractéristiques",
+    "description": "Description",
+    "brewingGuide": "Guide de préparation",
+    "recommended": "Produits recommandés",
+    "video": "Vidéo du produit",
+    "view360": "Vue 360°",
+    "addToInquiry": "Ajouter à la demande",
+    "requestSample": "Demander un échantillon",
+    "category": "Catégorie",
+    "share": "Partager"
+  },
+  "inquiry": {
+    "title": "Envoyer une demande",
+    "subtitle": "Dites-nous ce dont vous avez besoin, nous répondrons sous 24 heures",
+    "name": "Nom *",
+    "email": "E-mail *",
+    "phone": "Téléphone",
+    "company": "Entreprise",
+    "country": "Pays",
+    "message": "Message",
+    "product": "Produit",
+    "quantity": "Quantité",
+    "submit": "Envoyer la demande",
+    "success": "Demande envoyée ! Nous vous répondrons sous 24 heures.",
+    "captchaHint": "Veuillez compléter la vérification avant d'envoyer"
+  },
+  "compare": {
+    "title": "Comparaison de produits",
+    "add": "Ajouter à la comparaison",
+    "remove": "Retirer",
+    "empty": "Aucun produit sélectionné pour la comparaison",
+    "maxThree": "Vous pouvez comparer jusqu'à 3 produits"
+  },
+  "search": {
+    "placeholder": "Rechercher des produits...",
+    "searching": "Recherche en cours...",
+    "results": "Résultats de recherche",
+    "noResults": "Aucun produit correspondant trouvé"
+  },
+  "chat": {
+    "title": "Chat en ligne",
+    "placeholder": "Saisissez votre message...",
+    "send": "Envoyer",
+    "attachment": "Pièce jointe",
+    "typing": "En train d'écrire...",
+    "customerLabel": "Client",
+    "staffLabel": "Support"
+  },
+  "about": {
+    "title": "À propos de nous",
+    "intro": "YiQuanTea est une maison de thé ancrée au mont Songshan, dédiée aux thés à feuilles entières d'origine pure et naturelle.",
+    "mission": "Notre mission est d'apporter le thé chinois authentique au monde, feuille après feuille.",
+    "origin": "Nos jardins de thé se trouvent au mont Songshan, berceau d'une culture du thé séculaire.",
+    "certificationsCta": "Voir nos certifications"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Nous serions ravis d'avoir de vos nouvelles",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "whatsapp": "WhatsApp",
+    "address": "Adresse"
+  },
+  "footer": {
+    "contactUs": "Contactez-nous",
+    "followUs": "Suivez-nous",
+    "quickLinks": "Liens rapides",
+    "rights": "Tous droits réservés",
+    "privacy": "Politique de confidentialité"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "backHome": "Retour à l'accueil"
+  },
+  "admin": {
+    "login": "Connexion administrateur",
+    "username": "Identifiant (numéro de téléphone)",
+    "password": "Mot de passe",
+    "loginButton": "Se connecter",
+    "loginFailed": "Identifiant ou mot de passe incorrect",
+    "loginLocked": "Trop de tentatives échouées. Veuillez réessayer dans 15 minutes",
+    "welcome": "Bienvenue",
+    "logout": "Se déconnecter",
+    "searchPlaceholder": "Rechercher des fonctions (ex. : sauvegarde, chat, B2B)...",
+    "dashboard": "Tableau de bord",
+    "products": "Produits",
+    "showcase": "Vitrine B2B",
+    "inquiries": "Demandes",
+    "samples": "Échantillons",
+    "reviews": "Avis",
+    "homepage": "Éditeur d'accueil",
+    "navigation": "Éditeur de navigation",
+    "social": "Réseaux sociaux",
+    "pages": "Contenu des pages",
+    "staff": "Personnel",
+    "analytics": "Analytique",
+    "backup": "Sauvegarde de la base",
+    "logs": "Journaux d'opérations",
+    "settings": "Paramètres",
+    "seo": "Paramètres SEO",
+    "guide": "Guide d'utilisation",
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "search": "Rechercher",
+    "help": "Aide",
+    "upload": "Téléverser",
+    "download": "Télécharger",
+    "preview": "Aperçu",
+    "copy": "Copier",
+    "send": "Envoyer",
+    "randomPassword": "Générer un mot de passe aléatoire",
+    "refresh": "Actualiser",
+    "export": "Exporter",
+    "deleteConfirmTitle": "Confirmer la suppression",
+    "deleteConfirmHint": "Cette action est irréversible ! Saisissez le nom pour confirmer :",
+    "deleteConfirmButton": "Confirmer la suppression",
+    "roleAdmin": "Administrateur",
+    "roleEditor": "Éditeur",
+    "roleCustomerService": "Service client",
+    "statusActive": "Actif",
+    "statusDisabled": "Désactivé",
+    "statusNew": "Nouvelle",
+    "statusReplied": "Répondue",
+    "statusClosed": "Fermée",
+    "sampleNew": "Nouvelle demande",
+    "sampleProcessing": "En traitement",
+    "sampleShipped": "Expédiée",
+    "sampleDelivered": "Livrée",
+    "sampleClosed": "Fermée",
+    "priorityNormal": "Normale",
+    "priorityHigh": "Haute",
+    "backupAuto": "Sauvegarde automatique",
+    "backupManual": "Sauvegarde manuelle",
+    "backupLastTime": "Dernière sauvegarde",
+    "backupStatus": "État de la sauvegarde"
   }
 }

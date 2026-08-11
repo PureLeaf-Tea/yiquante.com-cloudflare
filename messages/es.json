@@ -1,17 +1,258 @@
 {
   "common": {
     "appName": "YiQuanTea",
-    "slogan": "Whole Leaf · Pure Nature",
+    "slogan": "Hoja entera · Naturaleza pura",
     "loading": "Cargando...",
-    "placeholder": "Placeholder - full translations will be written in Stage 7"
+    "back": "Volver",
+    "noData": "Sin datos disponibles",
+    "previousPage": "Página anterior",
+    "nextPage": "Página siguiente",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "retry": "Reintentar",
+    "viewAll": "Ver todo",
+    "more": "Más",
+    "yes": "Sí",
+    "no": "No",
+    "required": "Obligatorio",
+    "saveSuccess": "Guardado correctamente",
+    "operationFailed": "Error en la operación",
+    "networkError": "Error de red, inténtelo de nuevo"
   },
   "nav": {
     "home": "Inicio",
     "products": "Productos",
-    "b2b": "B2B",
+    "b2b": "Productos B2B",
     "about": "Sobre nosotros",
     "certifications": "Certificaciones",
     "contact": "Contacto",
     "language": "Idioma"
+  },
+  "home": {
+    "slogan": "Hoja entera · Naturaleza pura",
+    "viewAllProducts": "Ver todos los productos",
+    "b2bEntry": {
+      "title": "Productos B2B",
+      "desc": "Productos exclusivos para clientes mayoristas",
+      "btn": "Entrar"
+    },
+    "categories": {
+      "title": "Categorías de productos"
+    },
+    "sellingPoints": {
+      "title": "Por qué elegirnos"
+    },
+    "certifications": {
+      "title": "Certificaciones"
+    },
+    "reviews": {
+      "title": "Opiniones de clientes"
+    },
+    "cta": {
+      "title": "¿Listo para empezar?",
+      "inquiry": "Enviar consulta",
+      "sample": "Solicitar muestra"
+    }
+  },
+  "b2b": {
+    "pageTitle": "Productos B2B",
+    "pageSubtitle": "Productos exclusivos para clientes mayoristas",
+    "pageHint": "Seleccione una categoría de productos",
+    "noCategories": "Aún no hay categorías disponibles",
+    "categoryEnter": "Entrar →",
+    "backToCategories": "Volver a categorías B2B",
+    "productsInCategory": "Productos de esta categoría",
+    "passwordRequired": "Se requiere contraseña"
+  },
+  "b2bPassword": {
+    "title": "Introduzca la contraseña",
+    "subtitle": "Introduzca la contraseña para ver los productos",
+    "placeholder": "Introduzca la contraseña",
+    "confirm": "Confirmar",
+    "wrong": "Contraseña incorrecta, inténtelo de nuevo",
+    "locked": "Demasiados intentos. Vuelva a intentarlo en 30 minutos",
+    "noAccess": "¿No tiene contraseña? Contacte con nuestro equipo de ventas",
+    "show": "Mostrar",
+    "hide": "Ocultar",
+    "expired": "Acceso caducado. Introduzca la contraseña de nuevo"
+  },
+  "sample": {
+    "pageTitle": "Solicitar muestras gratuitas",
+    "name": "Nombre *",
+    "email": "Correo electrónico *",
+    "phone": "Teléfono",
+    "company": "Empresa",
+    "country": "País",
+    "address": "Dirección de envío *",
+    "product": "Producto de interés",
+    "quantity": "Cantidad",
+    "message": "Mensaje",
+    "submit": "Enviar solicitud",
+    "success": "¡Solicitud enviada! Le contactaremos en 24 horas.",
+    "hint": {
+      "free": "Las muestras son gratuitas, el envío corre a cargo del comprador",
+      "reply": "Responderemos en 24 horas",
+      "privacy": "Su información está protegida y nunca se comparte"
+    }
+  },
+  "gdpr": {
+    "title": "Este sitio web utiliza cookies",
+    "description": "Utilizamos cookies para mejorar su experiencia de navegación y analizar el tráfico. Al continuar navegando, acepta nuestro uso de cookies conforme a la Política de privacidad.",
+    "learnMore": "Más información: Política de privacidad →",
+    "necessary": "Cookies necesarias (siempre activas)",
+    "analytics": "Cookies de análisis",
+    "marketing": "Cookies de marketing",
+    "acceptNecessary": "Aceptar solo necesarias",
+    "acceptAll": "Aceptar todas",
+    "rejectAll": "Rechazar todas"
+  },
+  "product": {
+    "price": "Precio",
+    "priceCNY": "Precio (CNY)",
+    "priceUSD": "Precio (USD)",
+    "spec": "Especificación",
+    "specs": "Especificaciones",
+    "description": "Descripción",
+    "brewingGuide": "Guía de preparación",
+    "recommended": "Productos recomendados",
+    "video": "Vídeo del producto",
+    "view360": "Vista 360°",
+    "addToInquiry": "Añadir a la consulta",
+    "requestSample": "Solicitar muestra",
+    "category": "Categoría",
+    "share": "Compartir"
+  },
+  "inquiry": {
+    "title": "Enviar consulta",
+    "subtitle": "Cuéntenos qué necesita, responderemos en 24 horas",
+    "name": "Nombre *",
+    "email": "Correo electrónico *",
+    "phone": "Teléfono",
+    "company": "Empresa",
+    "country": "País",
+    "message": "Mensaje",
+    "product": "Producto",
+    "quantity": "Cantidad",
+    "submit": "Enviar consulta",
+    "success": "¡Consulta enviada! Le responderemos en 24 horas.",
+    "captchaHint": "Complete la verificación antes de enviar"
+  },
+  "compare": {
+    "title": "Comparación de productos",
+    "add": "Añadir a comparación",
+    "remove": "Quitar",
+    "empty": "No hay productos seleccionados para comparar",
+    "maxThree": "Puede comparar hasta 3 productos"
+  },
+  "search": {
+    "placeholder": "Buscar productos...",
+    "searching": "Buscando...",
+    "results": "Resultados de búsqueda",
+    "noResults": "No se encontraron productos coincidentes"
+  },
+  "chat": {
+    "title": "Chat en línea",
+    "placeholder": "Escriba su mensaje...",
+    "send": "Enviar",
+    "attachment": "Adjunto",
+    "typing": "Escribiendo...",
+    "customerLabel": "Cliente",
+    "staffLabel": "Soporte"
+  },
+  "about": {
+    "title": "Sobre nosotros",
+    "intro": "YiQuanTea es una empresa de té arraigada en el monte Songshan, dedicada a tés de hoja entera de origen puro y natural.",
+    "mission": "Nuestra misión es llevar el auténtico té chino al mundo, hoja a hoja.",
+    "origin": "Nuestros jardines de té están en el monte Songshan, cuna de una cultura del té centenaria.",
+    "certificationsCta": "Ver nuestras certificaciones"
+  },
+  "contact": {
+    "title": "Contacto",
+    "subtitle": "Nos encantará saber de usted",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "whatsapp": "WhatsApp",
+    "address": "Dirección"
+  },
+  "footer": {
+    "contactUs": "Contáctenos",
+    "followUs": "Síguenos",
+    "quickLinks": "Enlaces rápidos",
+    "rights": "Todos los derechos reservados",
+    "privacy": "Política de privacidad"
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "description": "La página que busca no existe o ha sido movida.",
+    "backHome": "Volver al inicio"
+  },
+  "admin": {
+    "login": "Acceso de administrador",
+    "username": "Usuario (número de teléfono)",
+    "password": "Contraseña",
+    "loginButton": "Iniciar sesión",
+    "loginFailed": "Usuario o contraseña incorrectos",
+    "loginLocked": "Demasiados intentos fallidos. Vuelva a intentarlo en 15 minutos",
+    "welcome": "Bienvenido",
+    "logout": "Cerrar sesión",
+    "searchPlaceholder": "Buscar funciones (p. ej.: copia, chat, B2B)...",
+    "dashboard": "Panel",
+    "products": "Productos",
+    "showcase": "Escaparate B2B",
+    "inquiries": "Consultas",
+    "samples": "Muestras",
+    "reviews": "Opiniones",
+    "homepage": "Editor de inicio",
+    "navigation": "Editor de navegación",
+    "social": "Redes sociales",
+    "pages": "Contenido de páginas",
+    "staff": "Personal",
+    "analytics": "Analítica",
+    "backup": "Copia de seguridad",
+    "logs": "Registros de operaciones",
+    "settings": "Configuración",
+    "seo": "Configuración SEO",
+    "guide": "Guía de uso",
+    "add": "Añadir",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "search": "Buscar",
+    "help": "Ayuda",
+    "upload": "Subir",
+    "download": "Descargar",
+    "preview": "Vista previa",
+    "copy": "Copiar",
+    "send": "Enviar",
+    "randomPassword": "Generar contraseña aleatoria",
+    "refresh": "Actualizar",
+    "export": "Exportar",
+    "deleteConfirmTitle": "Confirmar eliminación",
+    "deleteConfirmHint": "¡Esta acción no se puede deshacer! Escriba el nombre para confirmar:",
+    "deleteConfirmButton": "Confirmar eliminación",
+    "roleAdmin": "Administrador",
+    "roleEditor": "Editor",
+    "roleCustomerService": "Atención al cliente",
+    "statusActive": "Activo",
+    "statusDisabled": "Desactivado",
+    "statusNew": "Nueva",
+    "statusReplied": "Respondida",
+    "statusClosed": "Cerrada",
+    "sampleNew": "Nueva solicitud",
+    "sampleProcessing": "En proceso",
+    "sampleShipped": "Enviada",
+    "sampleDelivered": "Entregada",
+    "sampleClosed": "Cerrada",
+    "priorityNormal": "Normal",
+    "priorityHigh": "Alta",
+    "backupAuto": "Copia automática",
+    "backupManual": "Copia manual",
+    "backupLastTime": "Última copia",
+    "backupStatus": "Estado de la copia"
   }
 }

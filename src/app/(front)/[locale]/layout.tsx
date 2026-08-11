@@ -30,11 +30,13 @@ export default async function LocaleLayout({
   }
 
   // 服务端取出当前语言的翻译字典，注入客户端 Provider
-  const messages = await getMessages();
+  // ★必须显式传 locale：中间件接入前 requestLocale 为空，不传会永远回退英文
+  const messages = await getMessages({ locale });
 
   return (
     <html lang={locale}>
       <body>
+        {/* 缺译兜底策略：6 个翻译文件的键集合由校验脚本保证一致，新增键时必须同步 6 语言 */}
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Header locale={locale} />
           <main className="min-h-screen">{children}</main>

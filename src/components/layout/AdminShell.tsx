@@ -9,6 +9,14 @@ import { AdminTopbar } from './AdminTopbar';
 import { AdminSidebar } from './AdminSidebar';
 import { useInactivityTimer } from '@/hooks/useInactivityTimer';
 
+// 超时守卫：只在已登录页面挂载（登录页不需要计时）
+// ★独立组件是因为 Hook 不能条件调用；且 setTimeout 上限约 24.8 天，
+//   传超大值会被浏览器归零立即触发，绝不能用“超长计时”变相禁用
+function InactivityGuard() {
+  useInactivityTimer(60);
+  return null;
+}
+
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   // 移动端侧边栏抽屉开合
@@ -16,7 +24,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   // ★后台安全规范：1 小时无操作自动退出（登录页不挂计时器）
   const isLoginPage = pathname === '/admin';
-  useInactivityTimer(isLoginPage ? Number.MAX_SAFE_INTEGER : 60);
 
   // 登录页：纯净居中布局，不显示侧边栏/顶栏（07 号文档）
   if (isLoginPage) {
@@ -25,6 +32,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-100">
+      <InactivityGuard />
       <AdminTopbar onMenuClick={() => setSidebarOpen(true)} />
       <div className="flex flex-1">
         <AdminSidebar open={sidebarOpen} onNavigate={() => setSidebarOpen(false)} />

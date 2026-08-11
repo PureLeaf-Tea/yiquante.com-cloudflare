@@ -3,7 +3,23 @@
     "appName": "懿泉茶业",
     "slogan": "自然之味 · 嵩山",
     "loading": "加载中...",
-    "placeholder": "占位文本 - 完整翻译将在阶段 7 编写"
+    "back": "返回",
+    "noData": "暂无数据",
+    "previousPage": "上一页",
+    "nextPage": "下一页",
+    "save": "保存",
+    "cancel": "取消",
+    "confirm": "确认",
+    "close": "关闭",
+    "retry": "重试",
+    "viewAll": "查看全部",
+    "more": "更多",
+    "yes": "是",
+    "no": "否",
+    "required": "必填",
+    "saveSuccess": "保存成功",
+    "operationFailed": "操作失败",
+    "networkError": "网络错误，请重试"
   },
   "nav": {
     "home": "首页",
@@ -13,5 +29,230 @@
     "certifications": "认证资质",
     "contact": "联系我们",
     "language": "语言"
+  },
+  "home": {
+    "slogan": "自然之味 · 嵩山",
+    "viewAllProducts": "查看全部产品",
+    "b2bEntry": {
+      "title": "B2B产品",
+      "desc": "批发客户专属产品展示",
+      "btn": "进入"
+    },
+    "categories": {
+      "title": "产品分类"
+    },
+    "sellingPoints": {
+      "title": "为什么选择我们"
+    },
+    "certifications": {
+      "title": "认证资质"
+    },
+    "reviews": {
+      "title": "客户评价"
+    },
+    "cta": {
+      "title": "准备好开始了吗？",
+      "inquiry": "立即询价",
+      "sample": "申请样品"
+    }
+  },
+  "b2b": {
+    "pageTitle": "B2B产品",
+    "pageSubtitle": "批发客户专属产品展示",
+    "pageHint": "请选择您要查看的产品分类",
+    "noCategories": "暂无分类",
+    "categoryEnter": "进入 →",
+    "backToCategories": "返回B2B分类",
+    "productsInCategory": "该分类下的产品",
+    "passwordRequired": "需要密码访问"
+  },
+  "b2bPassword": {
+    "title": "请输入访问密码",
+    "subtitle": "请输入访问密码查看产品",
+    "placeholder": "请输入密码",
+    "confirm": "确认",
+    "wrong": "密码错误，请重试",
+    "locked": "密码错误次数过多，请30分钟后再试",
+    "noAccess": "没有密码？请联系销售人员获取",
+    "show": "显示",
+    "hide": "隐藏",
+    "expired": "访问已过期，请重新输入密码"
+  },
+  "sample": {
+    "pageTitle": "申请样品",
+    "name": "姓名 *",
+    "email": "邮箱 *",
+    "phone": "电话",
+    "company": "公司",
+    "country": "国家",
+    "address": "收货地址 *",
+    "product": "感兴趣的产品",
+    "quantity": "申请数量",
+    "message": "留言",
+    "submit": "提交申请",
+    "success": "申请已提交！我们会在24小时内联系您。",
+    "hint": {
+      "free": "样品免费，运费由买方承担",
+      "reply": "我们会在24小时内回复",
+      "privacy": "您的信息受保护，绝不外泄"
+    }
+  },
+  "gdpr": {
+    "title": "本网站使用 Cookie",
+    "description": "我们使用 Cookie 来提升您的浏览体验并分析流量。继续浏览即表示您同意我们按《隐私政策》使用 Cookie。",
+    "learnMore": "了解更多：隐私政策 →",
+    "necessary": "必要 Cookie（始终启用）",
+    "analytics": "分析 Cookie",
+    "marketing": "营销 Cookie",
+    "acceptNecessary": "仅接受必要",
+    "acceptAll": "全部接受",
+    "rejectAll": "全部拒绝"
+  },
+  "product": {
+    "price": "价格",
+    "priceCNY": "价格（人民币）",
+    "priceUSD": "价格（美元）",
+    "spec": "规格",
+    "specs": "产品规格",
+    "description": "产品描述",
+    "brewingGuide": "冲泡指南",
+    "recommended": "推荐产品",
+    "video": "产品视频",
+    "view360": "360° 展示",
+    "addToInquiry": "加入询价",
+    "requestSample": "申请样品",
+    "category": "分类",
+    "share": "分享"
+  },
+  "inquiry": {
+    "title": "在线询价",
+    "subtitle": "告诉我们您的需求，我们会在24小时内回复",
+    "name": "姓名 *",
+    "email": "邮箱 *",
+    "phone": "电话",
+    "company": "公司",
+    "country": "国家",
+    "message": "留言",
+    "product": "产品",
+    "quantity": "数量",
+    "submit": "提交询价",
+    "success": "询价已提交！我们会在24小时内回复您。",
+    "captchaHint": "提交前请完成人机验证"
+  },
+  "compare": {
+    "title": "产品对比",
+    "add": "加入对比",
+    "remove": "移除",
+    "empty": "尚未选择对比产品",
+    "maxThree": "最多可对比 3 个产品"
+  },
+  "search": {
+    "placeholder": "搜索产品...",
+    "searching": "搜索中...",
+    "results": "搜索结果",
+    "noResults": "未找到匹配的产品"
+  },
+  "chat": {
+    "title": "在线聊天",
+    "placeholder": "请输入消息...",
+    "send": "发送",
+    "attachment": "附件",
+    "typing": "正在输入...",
+    "customerLabel": "客户",
+    "staffLabel": "客服"
+  },
+  "about": {
+    "title": "关于我们",
+    "intro": "懿泉茶业扎根中岳嵩山，专注原叶好茶，纯净自然。",
+    "mission": "我们的使命是让正宗中国茶走向世界，一叶一韵。",
+    "origin": "我们的茶园位于嵩山腹地，这里孕育了数百年的茶文化。",
+    "certificationsCta": "查看我们的认证资质"
+  },
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "期待与您的每一次沟通",
+    "email": "邮箱",
+    "phone": "电话",
+    "whatsapp": "WhatsApp",
+    "address": "地址"
+  },
+  "footer": {
+    "contactUs": "联系我们",
+    "followUs": "关注我们",
+    "quickLinks": "快捷链接",
+    "rights": "版权所有",
+    "privacy": "隐私政策"
+  },
+  "notFound": {
+    "title": "页面不存在",
+    "description": "您访问的页面不存在或已被移动。",
+    "backHome": "返回首页"
+  },
+  "admin": {
+    "login": "后台登录",
+    "username": "账号（手机号）",
+    "password": "密码",
+    "loginButton": "登录",
+    "loginFailed": "账号或密码错误",
+    "loginLocked": "输错次数过多，请15分钟后再试",
+    "welcome": "欢迎",
+    "logout": "退出登录",
+    "searchPlaceholder": "搜索功能（如：备份、聊天、B2B）...",
+    "dashboard": "仪表盘",
+    "products": "产品管理",
+    "showcase": "B2B展示区管理",
+    "inquiries": "询价管理",
+    "samples": "样品管理",
+    "reviews": "评论管理",
+    "homepage": "首页编辑",
+    "navigation": "导航编辑",
+    "social": "社交媒体",
+    "pages": "页面内容",
+    "staff": "员工管理",
+    "analytics": "客户行为分析",
+    "backup": "备份管理",
+    "logs": "操作日志",
+    "settings": "网站设置",
+    "seo": "SEO 设置",
+    "guide": "操作指南",
+    "add": "添加",
+    "edit": "编辑",
+    "delete": "删除",
+    "save": "保存",
+    "saving": "保存中...",
+    "cancel": "取消",
+    "confirm": "确认",
+    "search": "搜索",
+    "help": "使用帮助",
+    "upload": "上传",
+    "download": "下载",
+    "preview": "预览",
+    "copy": "复制",
+    "send": "发送",
+    "randomPassword": "随机生成密码",
+    "refresh": "刷新",
+    "export": "导出",
+    "deleteConfirmTitle": "确认删除",
+    "deleteConfirmHint": "此操作不可恢复！请输入名称以确认：",
+    "deleteConfirmButton": "确认删除",
+    "roleAdmin": "管理员",
+    "roleEditor": "编辑",
+    "roleCustomerService": "客服",
+    "statusActive": "启用",
+    "statusDisabled": "禁用",
+    "statusNew": "新询价",
+    "statusReplied": "已回复",
+    "statusClosed": "已关闭",
+    "sampleNew": "新申请",
+    "sampleProcessing": "处理中",
+    "sampleShipped": "已发货",
+    "sampleDelivered": "已签收",
+    "sampleClosed": "已关闭",
+    "priorityNormal": "普通",
+    "priorityHigh": "优先",
+    "backupAuto": "自动备份",
+    "backupManual": "手动备份",
+    "backupLastTime": "上次备份时间",
+    "backupStatus": "备份状态"
   }
 }
