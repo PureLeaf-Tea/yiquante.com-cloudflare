@@ -26,8 +26,11 @@ export async function runBackup(
     // 逐表导出：用参数化的原生 SQL 查询（表名来自白名单常量，无注入风险）
     for (const table of BACKUP_TABLES) {
       // sql.raw：把字符串标记为原生 SQL（表名来自上面的白名单常量，无注入风险）
-      const result = await db.execute(sql.raw(`SELECT * FROM "${table}"`));
-      const rows = result as unknown as Record<string, unknown>[];
+      // Neon HTTP 驱动的 execute 返回 QueryResult 对象，行数据在 .rows 里
+      const result = (await db.execute(sql.raw(`SELECT * FROM "${table}"`))) as unknown as {
+        rows?: Record<string, unknown>[];
+      };
+      const rows = result.rows ?? [];
       sqlContent += `-- Table: ${table} (${rows.length} rows)\n`;
       for (const row of rows) {
         const columns = Object.keys(row);
