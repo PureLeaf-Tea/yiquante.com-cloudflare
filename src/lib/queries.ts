@@ -4,7 +4,7 @@ import { eq, and, isNull, sql, desc, like, or, inArray } from 'drizzle-orm';
 import { db } from './db';
 import {
   categories, products, productImages, productTranslations, productPageLayouts, productVideos,
-  recommendations, showcaseProducts, heroImages, sellingPoints, certifications, ctaButtons, reviews,
+  recommendations, showcaseProducts, showcaseCategories, heroImages, sellingPoints, certifications, ctaButtons, reviews,
 } from '@/drizzle/schema';
 
 // Hero 轮播图（激活状态，按 sortOrder）
@@ -221,6 +221,25 @@ export async function getProductBySlug(slug: string, locale: string) {
     categoryNameEn: catRows[0]?.nameEn ?? null,
     inShowcase: showcaseCats.length > 0,
   };
+}
+
+// ==================== 阶段 11：B2B 展示区前台 ====================
+
+// B2B 入口页分类卡片（激活分类 + 产品数）
+export async function getShowcaseEntryCategories() {
+  const cats = await db
+    .select()
+    .from(showcaseCategories)
+    .where(eq(showcaseCategories.isActive, true))
+    .orderBy(showcaseCategories.sortOrder);
+
+  const counts = await db
+    .select({ categoryId: showcaseProducts.showcaseCategoryId, count: sql<number>`count(*)::int` })
+    .from(showcaseProducts)
+    .groupBy(showcaseProducts.showcaseCategoryId);
+  const countMap = new Map(counts.map((c) => [c.categoryId, c.count]));
+
+  return cats.map((c) => ({ ...c, productCount: countMap.get(c.id) || 0 }));
 }
 
 // 按 ID 列表查产品（对比页，最多 3 个）
