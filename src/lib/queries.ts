@@ -5,6 +5,7 @@ import { db } from './db';
 import {
   categories, products, productImages, productTranslations, productPageLayouts, productVideos,
   recommendations, showcaseProducts, showcaseCategories, heroImages, sellingPoints, certifications, ctaButtons, reviews,
+  pageContents, siteConfig,
 } from '@/drizzle/schema';
 
 // Hero 轮播图（激活状态，按 sortOrder）
@@ -223,7 +224,28 @@ export async function getProductBySlug(slug: string, locale: string) {
   };
 }
 
-// ==================== 阶段 11：B2B 展示区前台 ====================
+// ==================== 阶段 12：辅助页面 ====================
+
+// 按 key 读页面内容（about/privacy/terms/contact/certifications）
+export async function getPageContent(pageKey: string) {
+  const rows = await db.select().from(pageContents).where(eq(pageContents.pageKey, pageKey)).limit(1);
+  return rows[0] ?? null;
+}
+
+// 站点配置单例（联系信息等）
+export async function getSiteConfig() {
+  const rows = await db.select().from(siteConfig).where(eq(siteConfig.id, 'main')).limit(1);
+  return rows[0] ?? null;
+}
+
+// 认证证书列表（激活，按序）
+export function getCertificationList() {
+  return db
+    .select()
+    .from(certifications)
+    .where(eq(certifications.isActive, true))
+    .orderBy(certifications.sortOrder);
+}
 
 // B2B 入口页分类卡片（激活分类 + 产品数）
 export async function getShowcaseEntryCategories() {

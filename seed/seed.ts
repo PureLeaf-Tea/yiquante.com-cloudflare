@@ -11,7 +11,7 @@ import {
   users, categories, products, productImages, productTranslations, productPageLayouts,
   showcaseCategories, showcaseProducts, reviews, searchKeywords,
   siteConfig, homepageConfig, heroImages, sellingPoints, certifications, ctaButtons,
-  navigationItems,
+  navigationItems, pageContents,
 } from '../drizzle/schema';
 import { hashPassword } from '../src/lib/auth';
 import { encrypt } from '../src/lib/crypto';
@@ -457,6 +457,63 @@ async function seedHomepageConfig() {
   }
 }
 
+// ==================== 9. 页面内容（辅助页文案，阶段 12） ====================
+
+const PAGE_CONTENT_DEFS: Array<{ pageKey: string; titleZh: string; titleEn: string; contentZh: string; contentEn: string }> = [
+  {
+    pageKey: 'about',
+    titleZh: '关于我们',
+    titleEn: 'About Us',
+    contentZh:
+      '懿泉茶业坐落于中岳嵩山，专注原叶茶的制作与出口。\n\n我们坚持“Whole Leaf · Pure Nature”的理念，从茶园到茶杯全程可追溯，为全球客户提供高品质的中国茶。',
+    contentEn:
+      'YiQuanTea is located at Mount Song, dedicated to whole-leaf tea production and export.\n\nWe uphold the philosophy of "Whole Leaf · Pure Nature", ensuring full traceability from garden to cup, serving clients worldwide with premium Chinese tea.',
+  },
+  {
+    pageKey: 'certifications',
+    titleZh: '认证资质',
+    titleEn: 'Certifications',
+    contentZh: '我们持有多项国际质量与食品安全认证，包括有机认证、ISO 22000、HACCP 与出口食品备案。',
+    contentEn:
+      'We hold multiple international quality and food-safety certifications, including Organic, ISO 22000, HACCP and Export Food Registration.',
+  },
+  {
+    pageKey: 'contact',
+    titleZh: '联系我们',
+    titleEn: 'Contact Us',
+    contentZh: '欢迎通过邮箱、电话、WhatsApp 或微信与我们联系，我们将在 24 小时内回复。',
+    contentEn: 'Reach us via email, phone, WhatsApp or WeChat. We will reply within 24 hours.',
+  },
+  {
+    pageKey: 'privacy',
+    titleZh: '隐私政策',
+    titleEn: 'Privacy Policy',
+    contentZh:
+      '我们重视您的隐私。本站仅收集处理询价与样品申请所必需的联系方式。\n\nGDPR 数据权利：欧盟访客有权访问、更正或删除其个人数据，请通过邮箱 yqtea.cn@gmail.com 提出申请。\n\nCookie：仅使用必要的会话 Cookie；分析 Cookie 需您在弹窗中明确同意。',
+    contentEn:
+      'We value your privacy. This site only collects contact details necessary for processing inquiries and sample requests.\n\nGDPR rights: EU visitors may access, rectify or erase their personal data by emailing yqtea.cn@gmail.com.\n\nCookies: only necessary session cookies are used; analytics cookies require your explicit consent.',
+  },
+  {
+    pageKey: 'terms',
+    titleZh: '服务条款',
+    titleEn: 'Terms of Service',
+    contentZh:
+      '本站展示价格仅供参考，实际批发价格以询价确认为准。样品免费，运费由买方承担。\n\n使用本站即表示您同意本条款。',
+    contentEn:
+      'Prices shown are for reference only; actual wholesale prices are subject to inquiry confirmation. Samples are free with shipping borne by the buyer.\n\nBy using this site you agree to these terms.',
+  },
+];
+
+async function seedPageContents() {
+  const existing = await db.select().from(pageContents);
+  const byKey = new Set(existing.map((p) => p.pageKey));
+  for (const p of PAGE_CONTENT_DEFS) {
+    if (byKey.has(p.pageKey)) continue;
+    await db.insert(pageContents).values({ ...p, updatedAt: new Date() });
+    count('页面内容');
+  }
+}
+
 // ==================== 主流程 ====================
 
 async function main() {
@@ -469,6 +526,7 @@ async function main() {
   await seedReviews();
   await seedKeywords();
   await seedHomepageConfig();
+  await seedPageContents();
 
   console.log('\n种子数据汇总：');
   for (const [k, v] of Object.entries(summary)) console.log(`  ${k}: ${v}`);
