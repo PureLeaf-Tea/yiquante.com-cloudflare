@@ -1,21 +1,33 @@
-// 前台占位首页（阶段 6）
-// 阶段 9 会替换为正式首页：Hero 轮播 / 分类卡片 / B2B 入口 / 卖点 / 认证 / 评价 / CTA 七模块
-import { useTranslations } from 'next-intl';
-import { Leaf } from 'lucide-react';
+// 前台首页（阶段 9 正式版）
+// 7 个模块按 06 号文档顺序：Hero → 分类卡片 → 卖点 → 认证 → B2B 入口 → 客户评价 → CTA
+import { HeroCarousel, type HeroSlide } from '@/components/home/HeroCarousel';
+import { CategoryCards } from '@/components/home/CategoryCards';
+import { SellingPoints } from '@/components/home/SellingPoints';
+import { Certifications } from '@/components/home/Certifications';
+import { B2BEntry } from '@/components/home/B2BEntry';
+import { ReviewsSection } from '@/components/home/ReviewsSection';
+import { CtaSection } from '@/components/home/CtaSection';
+import { getHeroSlides } from '@/lib/queries';
 
-export default function LocaleHomePage() {
-  const t = useTranslations('common');
+export default async function LocaleHomePage({ params }: { params: { locale: string } }) {
+  const locale = params.locale;
+
+  const heroRows = await getHeroSlides();
+  const slides: HeroSlide[] = heroRows.map((h) => ({
+    imageUrl: h.imageUrl,
+    title: locale === 'zh' ? h.titleZh || '' : h.titleEn || '',
+    subtitle: locale === 'zh' ? h.subtitleZh || '' : h.subtitleEn || '',
+  }));
 
   return (
-    <div className="flex flex-col items-center justify-center gap-6 px-6 py-24 text-center">
-      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-green text-white">
-        <Leaf size={40} aria-hidden="true" />
-      </div>
-      <h1 className="font-serif text-3xl text-brand-green">
-        {t('appName')}
-      </h1>
-      <p className="text-lg text-brand-gold">{t('slogan')}</p>
-      <p className="text-sm text-gray-500">阶段 9 将在此构建正式首页（7 个模块）</p>
-    </div>
+    <>
+      <HeroCarousel slides={slides} />
+      <CategoryCards locale={locale} />
+      <SellingPoints locale={locale} />
+      <Certifications locale={locale} />
+      <B2BEntry locale={locale} />
+      <ReviewsSection locale={locale} />
+      <CtaSection locale={locale} />
+    </>
   );
 }
