@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 全局基础样式：品牌奶油白底色 + 正文字体 */
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-brand-cream text-gray-700 font-sans antialiased;
+}
+
+h1,
+h2,
+h3 {
+  @apply text-brand-green;
+}

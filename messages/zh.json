@@ -1,0 +1,17 @@
+{
+  "common": {
+    "appName": "懿泉茶业",
+    "slogan": "自然之味 · 嵩山",
+    "loading": "加载中...",
+    "placeholder": "占位文本 - 完整翻译将在阶段 7 编写"
+  },
+  "nav": {
+    "home": "首页",
+    "products": "产品",
+    "b2b": "B2B产品",
+    "about": "关于我们",
+    "certifications": "认证资质",
+    "contact": "联系我们",
+    "language": "语言"
+  }
+}

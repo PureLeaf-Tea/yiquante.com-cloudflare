@@ -1,0 +1,30 @@
+# ============ 依赖 ============
+/node_modules
+/.pnp
+.pnp.js
+
+# ============ Next.js 构建产物 ============
+/.next/
+/out/
+/.vercel
+
+# ============ Cloudflare ============
+.wrangler/
+.dev.vars
+
+# ============ 环境变量（含密钥，绝对不能提交）============
+.env
+.env.local
+.env.production
+
+# ============ 调试与系统文件 ============
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
+next-env.d.ts
+
+# ============ 数据迁移临时数据 ============
+/migration/data/

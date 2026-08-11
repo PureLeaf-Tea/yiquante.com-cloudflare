@@ -1,0 +1,17 @@
+{
+  "common": {
+    "appName": "YiQuanTea",
+    "slogan": "Whole Leaf · Pure Nature",
+    "loading": "Chargement...",
+    "placeholder": "Placeholder - full translations will be written in Stage 7"
+  },
+  "nav": {
+    "home": "Accueil",
+    "products": "Produits",
+    "b2b": "B2B",
+    "about": "À propos",
+    "certifications": "Certifications",
+    "contact": "Contact",
+    "language": "Langue"
+  }
+}
