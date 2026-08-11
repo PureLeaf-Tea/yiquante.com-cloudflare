@@ -1,6 +1,7 @@
-// 后台登录页占位（阶段 6）
-// 阶段 13 替换为正式登录表单（手机号 + 密码 + JWT 签发 + 5 次锁定）
-import { Leaf, KeyRound } from 'lucide-react';
+// 后台登录页（/admin，阶段 13 正式版）
+// 登录页纯净居中布局（AdminShell 识别 pathname === '/admin' 不挂侧边栏/计时器）
+import { Leaf } from 'lucide-react';
+import { AdminLoginForm } from '@/components/admin/AdminLoginForm';
 
 export default function AdminLoginPage() {
   return (
@@ -13,10 +14,7 @@ export default function AdminLoginPage() {
           <h1 className="text-lg font-semibold text-brand-green">懿泉茶叶管理系统</h1>
           <p className="text-sm text-gray-500">员工登录入口</p>
         </div>
-        <p className="flex items-center justify-center gap-2 rounded-lg bg-gray-50 py-6 text-sm text-gray-400">
-          <KeyRound size={16} aria-hidden="true" />
-          阶段 13 构建正式登录表单
-        </p>
+        <AdminLoginForm />
       </div>
     </div>
   );
