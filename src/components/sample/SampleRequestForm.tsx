@@ -8,6 +8,7 @@ import { Send, CheckCircle2, Gift, Clock, MessageCircle } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
+import { HCaptchaBox } from '@/components/ui/HCaptchaBox';
 import { toastError } from '@/components/ui/Toast';
 
 // 常见国家下拉选项（其余可手填到留言）
@@ -34,6 +35,8 @@ export function SampleRequestForm({ locale }: { locale: string }) {
   });
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  // hCaptcha 验证 token（未通过时提交按钮置灰）
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   // 拉产品列表供选择（一次拉全，种子数据量小）
   useEffect(() => {
@@ -73,6 +76,7 @@ export function SampleRequestForm({ locale }: { locale: string }) {
           productName: product ? (zh ? product.nameZh : product.nameEn) : undefined,
           quantity: Math.max(1, Number(form.quantity) || 1),
           message: form.message || undefined,
+          hcaptchaToken: captchaToken || undefined,
         }),
       });
       const data = (await res.json()) as { success?: boolean; error?: string };
@@ -141,7 +145,10 @@ export function SampleRequestForm({ locale }: { locale: string }) {
         />
       </div>
 
-      <Button icon={Send} loading={submitting} onClick={submit}>
+      {/* hCaptcha 人机验证（提交按钮上方） */}
+      <HCaptchaBox locale={locale} onToken={setCaptchaToken} />
+
+      <Button icon={Send} loading={submitting} disabled={!captchaToken} onClick={submit}>
         {zh ? '提交申请' : 'Submit Request'}
       </Button>
 

@@ -15,13 +15,13 @@ crons = [
 # ★KV 缓存绑定（KV：全球同步的高速 key-value 缓存）
 [[kv_namespaces]]
 binding = "YIQUANTEA_KV"
-id = "你的 KV namespace ID"
+id = "260f93d1e2b64f1886fd3e41aa3a92f"
 
 # ★D1 数据库绑定（D1：Cloudflare 自带的轻量 SQLite 数据库，仅存分析快照）
 [[d1_databases]]
 binding = "YIQUANTEA_D1"
-database_name = "yiquantea-d1"
-database_id = "你的 D1 database ID"
+database_name = "yiquantea-analytics"
+database_id = "cb0ad2be-653b-4f2f-ad31-aae79bac66aa"
 
 # ★R2 文件存储绑定（R2：存图片/视频/备份的对象存储）
 [[r2_buckets]]

@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Send, Trash2, CheckCircle2 } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { HCaptchaBox } from '@/components/ui/HCaptchaBox';
 import { toastError } from '@/components/ui/Toast';
 import { useInquiryCart } from '@/components/storefront/InquiryCartContext';
 
@@ -24,6 +25,8 @@ export function InquiryForm({ locale }: { locale: string }) {
   });
   const [submitting, setSubmitting] = useState(false);
   const [successId, setSuccessId] = useState<string | null>(null);
+  // hCaptcha 验证 token（未通过时提交按钮置灰）
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -41,6 +44,7 @@ export function InquiryForm({ locale }: { locale: string }) {
         body: JSON.stringify({
           ...form,
           items: items.map((i) => ({ productId: i.productId, productName: i.productName, quantity: i.quantity })),
+          hcaptchaToken: captchaToken || undefined,
         }),
       });
       const data = (await res.json()) as { success?: boolean; error?: string; data?: { id: string; chatToken?: string } };
@@ -134,7 +138,10 @@ export function InquiryForm({ locale }: { locale: string }) {
         />
       </div>
 
-      <Button icon={Send} loading={submitting} onClick={submit}>
+      {/* hCaptcha 人机验证（提交按钮上方） */}
+      <HCaptchaBox locale={locale} onToken={setCaptchaToken} />
+
+      <Button icon={Send} loading={submitting} disabled={!captchaToken} onClick={submit}>
         {zh ? '提交询价' : 'Send Inquiry'}
       </Button>
     </div>
