@@ -28,8 +28,29 @@ export default async function ProductDetailPage({
   const name = zh ? product.nameZh : product.nameEn;
   const thumbnail = data.images[0]?.url ?? null;
 
+  // schema.org Product 结构化数据（16 号文档 §八）
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name,
+    image: thumbnail ? [thumbnail] : undefined,
+    description: data.description || undefined,
+    sku: product.sku || undefined,
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'CNY',
+      price: product.priceCNY,
+      availability: product.status === 'active' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    },
+  };
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      {/* schema.org 结构化数据 */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* 面包屑 */}
       <nav className="mb-6 flex items-center gap-1.5 text-sm text-gray-400" aria-label="面包屑">
         <Link href={`/${locale}`} className="hover:text-brand-green">

@@ -9,10 +9,29 @@ import { isValidLocale } from '@/i18n/config';
 import { ToastProvider } from '@/components/ui/Toast';
 import '../../globals.css';
 
-export const metadata: Metadata = {
-  title: 'YiQuanTea - Whole Leaf · Pure Nature',
-  description: '懿泉茶业 YiQuanTea.com — 原叶 · 纯净自然',
-};
+// 页面级元数据：基础标题 + hreflang 六语言互指 + x-default + Open Graph（16 号文档 §八）
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  const locale = params.locale;
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.includes('localhost')
+    ? 'https://yiquantea.com'
+    : process.env.NEXT_PUBLIC_SITE_URL || 'https://yiquantea.com';
+  const locales = ['zh', 'en', 'ru', 'de', 'es', 'fr'];
+  const languages: Record<string, string> = { 'x-default': `${SITE_URL}/en` };
+  for (const l of locales) languages[l] = `${SITE_URL}/${l}`;
+
+  return {
+    title: 'YiQuanTea - Whole Leaf · Pure Nature',
+    description: '懿泉茶业 YiQuanTea.com — 原叶 · 纯净自然',
+    alternates: { canonical: `${SITE_URL}/${locale}`, languages },
+    openGraph: {
+      title: 'YiQuanTea - Whole Leaf · Pure Nature',
+      description: '懿泉茶业 YiQuanTea — 嵩山原叶茶批发与出口 | Mount Song whole-leaf tea wholesale',
+      siteName: 'YiQuanTea',
+      locale,
+      type: 'website',
+    },
+  };
+}
 
 export default async function LocaleLayout({
   children,

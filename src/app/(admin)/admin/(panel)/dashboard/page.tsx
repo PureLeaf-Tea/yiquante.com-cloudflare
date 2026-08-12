@@ -100,7 +100,7 @@ export default async function DashboardPage() {
 
       {/* 最近询价 + 样品速览 */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+        <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
           <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
             <Clock size={15} className="text-brand-gold" aria-hidden="true" />
             最近询价
@@ -110,8 +110,8 @@ export default async function DashboardPage() {
           ) : (
             <ul className="space-y-2">
               {recentInquiries.map((i) => (
-                <li key={i.id} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 text-sm">
-                  <span className="truncate text-gray-700">
+                <li key={i.id} className="flex items-center justify-between gap-2 rounded-lg bg-gray-50 px-3 py-2 text-sm">
+                  <span className="min-w-0 truncate text-gray-700">
                     {i.name} · {i.email}
                   </span>
                   <span className="shrink-0 rounded bg-brand-green/10 px-2 py-0.5 text-xs text-brand-green">
@@ -123,7 +123,7 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+        <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
           <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
             <FlaskConical size={15} className="text-brand-gold" aria-hidden="true" />
             最近样品申请
@@ -133,8 +133,8 @@ export default async function DashboardPage() {
           ) : (
             <ul className="space-y-2">
               {recentSamples.map((s) => (
-                <li key={s.id} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 text-sm">
-                  <span className="truncate text-gray-700">
+                <li key={s.id} className="flex items-center justify-between gap-2 rounded-lg bg-gray-50 px-3 py-2 text-sm">
+                  <span className="min-w-0 truncate text-gray-700">
                     {s.name} · {s.productName || '未指定产品'}
                   </span>
                   <span className="shrink-0 rounded bg-brand-green/10 px-2 py-0.5 text-xs text-brand-green">
