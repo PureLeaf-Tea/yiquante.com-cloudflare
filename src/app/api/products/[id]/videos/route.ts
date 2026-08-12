@@ -1,11 +1,12 @@
 // GET/POST /api/products/[id]/videos — 产品视频/360°（05 号文档 §六）
-// 限制：MP4/MOV ≤50MB，360°图片 ≤20MB（开发阶段存占位 URL，上线接 R2）
+// 限制：MP4/MOV ≤50MB，360°图片 ≤20MB；真实上传 R2，凭据缺失时降级占位（收尾任务 3）
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { products, productVideos, uploads } from '@/drizzle/schema';
 import { ok, fail, parseBody, rateLimitPublic, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { uploadFile, isR2Configured, publicUrl } from '@/lib/r2';
 
 export const runtime = 'nodejs';
 
@@ -60,8 +61,19 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
   }
 
   const key = `products/${params.id}/${type}-${Date.now()}${type === 'video' ? '.mp4' : '.webp'}`;
-  // ★占位 URL：R2 开通后替换为 uploadToR2() 真实地址
-  const url = `${process.env.R2_PUBLIC_URL || '/files'}/${key}`;
+
+  // 真实上传 R2；凭据未配置时降级占位 URL（收尾任务 3）
+  let url: string;
+  if (isR2Configured()) {
+    try {
+      const body = await file.arrayBuffer();
+      url = await uploadFile(key, body, file.type);
+    } catch {
+      url = publicUrl(key);
+    }
+  } else {
+    url = publicUrl(key);
+  }
 
   const rows = await db
     .insert(productVideos)

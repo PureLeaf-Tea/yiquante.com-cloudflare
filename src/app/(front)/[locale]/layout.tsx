@@ -1,13 +1,19 @@
 // 前台语言根布局（阶段 10 重构）
 // 只负责 html/body + 多语言 Provider + Toast；导航页脚由 (main) 分组布局承担，
 // 这样展示区独立详情等"无导航页脚"页面可以直接挂在 [locale] 下
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { isValidLocale } from '@/i18n/config';
 import { ToastProvider } from '@/components/ui/Toast';
+import { SWRegister } from '@/components/ui/SWRegister';
 import '../../globals.css';
+
+// PWA 主题色（Next 14 要求走 viewport 导出）
+export const viewport: Viewport = {
+  themeColor: '#166534',
+};
 
 // 页面级元数据：基础标题 + hreflang 六语言互指 + x-default + Open Graph（16 号文档 §八）
 export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
@@ -22,6 +28,9 @@ export async function generateMetadata({ params }: { params: { locale: string } 
   return {
     title: 'YiQuanTea - Whole Leaf · Pure Nature',
     description: '懿泉茶业 YiQuanTea.com — 原叶 · 纯净自然',
+    // PWA：manifest + iOS 全屏（收尾任务 1）；主题色见 viewport 导出
+    manifest: '/manifest.json',
+    appleWebApp: { capable: true, statusBarStyle: 'default', title: '懿泉茶业' },
     alternates: { canonical: `${SITE_URL}/${locale}`, languages },
     openGraph: {
       title: 'YiQuanTea - Whole Leaf · Pure Nature',
@@ -55,6 +64,7 @@ export default async function LocaleLayout({
           {children}
           <ToastProvider />
         </NextIntlClientProvider>
+        <SWRegister />
       </body>
     </html>
   );

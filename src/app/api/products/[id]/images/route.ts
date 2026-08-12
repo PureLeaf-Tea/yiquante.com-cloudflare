@@ -6,6 +6,7 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { products, productImages, uploads } from '@/drizzle/schema';
 import { ok, fail, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { uploadFile, removeFile, isR2Configured, publicUrl, keyFromUrl } from '@/lib/r2';
 
 export const runtime = 'nodejs';
 
@@ -37,8 +38,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const order = existing.length;
 
   const key = `products/${product.id}/${Date.now()}-${order}.webp`;
-  // ★占位 URL：R2 开通后替换为真实上传地址
-  const url = `${process.env.R2_PUBLIC_URL || '/files'}/${key}`;
+
+  // 真实上传 R2；凭据未配置时降级占位 URL（收尾任务 3）
+  let url: string;
+  if (isR2Configured()) {
+    try {
+      const body = await file.arrayBuffer();
+      url = await uploadFile(key, body, file.type);
+    } catch {
+      url = publicUrl(key);
+    }
+  } else {
+    url = publicUrl(key);
+  }
 
   const rows = await db
     .insert(productImages)
@@ -75,6 +87,15 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   if (!rows[0]) return fail('图片不存在', 404);
 
   await db.delete(productImages).where(eq(productImages.id, imageId));
+  // 同步删 R2 对象（非 R2 URL 自动跳过）
+  const r2Key = keyFromUrl(rows[0].url);
+  if (r2Key) {
+    try {
+      await removeFile(r2Key);
+    } catch {
+      // R2 删除失败不阻断数据库删除
+    }
+  }
   await logOperation(auth, 'delete', 'product', params.id, `删除图片 ${rows[0].url}`);
   return ok({ deleted: true });
 }

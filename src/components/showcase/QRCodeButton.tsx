@@ -1,13 +1,14 @@
 'use client';
 
 // 二维码按钮（QRCodeButton.tsx）
-// 展示区产品自动生成二维码（02 §6.1）：弹窗展示 /api/qrcode 生成的本站链接二维码
+// 展示区产品自动生成二维码（02 §6.1）：弹窗展示 /api/showcase/[id]/qrcode 真实 PNG + 下载按钮（收尾任务 4）
 import { useState } from 'react';
-import { QrCode, X } from 'lucide-react';
+import { QrCode, X, Download } from 'lucide-react';
 
-export function QRCodeButton({ url, locale }: { url: string; locale: string }) {
+export function QRCodeButton({ slug, locale }: { slug: string; locale: string }) {
   const [open, setOpen] = useState(false);
   const zh = locale === 'zh';
+  const qrSrc = `/api/showcase/${slug}/qrcode?locale=${locale}`;
 
   return (
     <>
@@ -38,11 +39,18 @@ export function QRCodeButton({ url, locale }: { url: string; locale: string }) {
             </button>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`/api/qrcode?url=${encodeURIComponent(url)}`}
+              src={qrSrc}
               alt={zh ? '产品二维码' : 'Product QR code'}
               className="mx-auto h-56 w-56"
             />
-            <p className="mt-3 max-w-56 break-all text-xs text-gray-400">{url}</p>
+            <a
+              href={qrSrc}
+              download={`${slug}-qrcode.png`}
+              className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-btn bg-brand-green px-4 text-sm text-white hover:bg-brand-green/90"
+            >
+              <Download size={15} aria-hidden="true" />
+              {zh ? '下载二维码' : 'Download QR'}
+            </a>
           </div>
         </div>
       )}

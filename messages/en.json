@@ -181,7 +181,12 @@
     "followUs": "Follow Us",
     "quickLinks": "Quick Links",
     "rights": "All rights reserved",
-    "privacy": "Privacy Policy"
+    "privacy": "Privacy Policy",
+    "companyName": "YiQuanTea Tea Co., Ltd.",
+    "slogan": "Whole Leaf · Pure Nature",
+    "location": "Mount Song, China",
+    "wechat": "WeChat",
+    "moreSoon": "More social channels coming soon"
   },
   "notFound": {
     "title": "Page Not Found",

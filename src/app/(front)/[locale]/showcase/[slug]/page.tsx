@@ -30,7 +30,6 @@ export default async function ShowcaseDetailPage({
 
   const { product } = data;
   const thumbnail = data.images[0]?.url ?? null;
-  const pageUrl = `${process.env.NEXT_PUBLIC_SITE_URL || ''}/${locale}/showcase/${slug}`;
 
   return (
     // 只要 Context（ProductInfo 的询价/对比按钮需要），不要浮动挂件（独立页规格）
@@ -44,7 +43,7 @@ export default async function ShowcaseDetailPage({
             <span className="font-serif">YiQuanTea</span>
           </Link>
           <div className="flex items-center gap-2">
-            <QRCodeButton url={pageUrl} locale={locale} />
+            <QRCodeButton slug={slug} locale={locale} />
             <ShowcaseLanguageSwitcher currentLocale={locale} />
           </div>
         </div>

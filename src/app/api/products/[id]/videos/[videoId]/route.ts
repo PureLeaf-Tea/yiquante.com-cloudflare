@@ -5,6 +5,7 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { productVideos } from '@/drizzle/schema';
 import { ok, fail, parseBody, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { removeFile, keyFromUrl } from '@/lib/r2';
 
 export const runtime = 'nodejs';
 
@@ -36,7 +37,7 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
   return ok(rows[0]);
 }
 
-// DELETE：删除视频（同时应删除 R2 文件——开发阶段仅删记录，上线补 deleteFromR2）
+// DELETE：删除视频（同步删 R2 文件，收尾任务 3）
 export async function DELETE(_req: NextRequest, { params }: RouteContext) {
   const auth = await requireUser();
   if (isFail(auth)) return auth;
@@ -49,7 +50,15 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
   if (!existing[0]) return fail('视频不存在', 404);
 
   await db.delete(productVideos).where(eq(productVideos.id, params.videoId));
-  // TODO 上线：deleteFromR2(keyFromUrl(existing[0].url), env.YIQUANTEA_R2)
+  // 同步删 R2 对象（非 R2 URL 自动跳过，删除失败不阻断）
+  const r2Key = keyFromUrl(existing[0].url);
+  if (r2Key) {
+    try {
+      await removeFile(r2Key);
+    } catch {
+      // 忽略 R2 删除失败
+    }
+  }
 
   await logOperation(auth, 'delete', 'product_video', params.videoId);
   return ok({ id: params.videoId });

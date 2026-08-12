@@ -1,11 +1,12 @@
 ﻿// GET/POST /api/products（05 号文档 §4.1/§4.3）
 // GET：产品列表（公开，分页 25；status=all 需认证）
-// POST：新增产品（multipart/form-data，需认证；开发阶段图片存占位 URL，上线接 R2）
+// POST：新增产品（multipart/form-data，需认证；图片真实上传 R2，凭据缺失时降级占位）
 import type { NextRequest } from 'next/server';
 import { eq, and, or, like, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { products, productImages, productPageLayouts, categories, uploads } from '@/drizzle/schema';
 import { ok, fail, rateLimitPublic, requireUser, isFail, logOperation, getPagination } from '@/lib/api-helpers';
+import { uploadFile, isR2Configured, publicUrl } from '@/lib/r2';
 
 export const runtime = 'nodejs';
 
@@ -108,7 +109,7 @@ export async function POST(req: NextRequest) {
     .returning();
   const product = productRows[0];
 
-  // 2. 图片文件（开发阶段：登记 uploads 表 + 占位 URL；上线后此处替换为 R2 上传）
+  // 2. 图片文件：真实上传 R2 + 登记 uploads 表（收尾任务 3；凭据缺失降级占位）
   const imageFiles = form.getAll('images').filter((v): v is File => v instanceof File);
   let order = 0;
   for (const file of imageFiles) {
@@ -119,8 +120,17 @@ export async function POST(req: NextRequest) {
       return fail(`图片超过 10MB：${file.name}`, 400);
     }
     const key = `products/${product.id}/${Date.now()}-${order}.webp`;
-    // ★占位 URL：R2 开通后改为 uploadToR2() 返回的真实地址
-    const url = `${process.env.R2_PUBLIC_URL || '/files'}/${key}`;
+    let url: string;
+    if (isR2Configured()) {
+      try {
+        const body = await file.arrayBuffer();
+        url = await uploadFile(key, body, file.type);
+      } catch {
+        url = publicUrl(key);
+      }
+    } else {
+      url = publicUrl(key);
+    }
     await db.insert(productImages).values({ productId: product.id, url, alt: nameZh, sortOrder: order });
     await db.insert(uploads).values({
       type: 'image',

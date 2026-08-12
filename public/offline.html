@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>离线 — 懿泉茶业 YiQuanTea</title>
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #ffffff; color: #166534; display: flex; align-items: center; justify-content: center; min-height: 100vh; text-align: center; }
+    .box { padding: 32px; }
+    h1 { font-size: 22px; margin: 0 0 12px; }
+    p { font-size: 15px; color: #555; margin: 0 0 24px; }
+    a { display: inline-block; padding: 10px 28px; background: #166534; color: #fff; text-decoration: none; border-radius: 8px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>您当前处于离线状态</h1>
+    <p>网络连接不可用，请检查网络后重试。您仍可浏览之前访问过的页面。</p>
+    <a href="/" onclick="window.location.reload();return false;">重新加载</a>
+  </div>
+</body>
+</html>

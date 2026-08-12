@@ -1,9 +1,10 @@
 ﻿// POST /api/upload — 通用文件上传（05 号文档 §十二，需登录）
-// type: image / video / chat；白名单 + 大小校验；开发阶段返回占位 URL，上线接 R2
+// type: image / video / chat；白名单 + 大小校验；真实上传 R2（收尾任务 3），凭据缺失时降级占位
 import type { NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { uploads } from '@/drizzle/schema';
 import { ok, fail, rateLimited, requireUser, isFail } from '@/lib/api-helpers';
+import { uploadFile, isR2Configured, publicUrl } from '@/lib/r2';
 
 export const runtime = 'nodejs';
 
@@ -41,8 +42,21 @@ export async function POST(req: NextRequest) {
 
   const ext = file.type.split('/')[1] || 'bin';
   const key = `${type}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  // ★占位 URL：R2 开通后替换为 uploadToR2() 的真实地址
-  const url = `${process.env.R2_PUBLIC_URL || '/files'}/${key}`;
+
+  // 真实上传 R2；凭据未配置时降级占位 URL（保持向后兼容）
+  let url: string;
+  let uploadedToR2 = false;
+  if (isR2Configured()) {
+    try {
+      const body = await file.arrayBuffer();
+      url = await uploadFile(key, body, file.type);
+      uploadedToR2 = true;
+    } catch {
+      url = publicUrl(key);
+    }
+  } else {
+    url = publicUrl(key);
+  }
 
   const rows = await db
     .insert(uploads)
@@ -57,6 +71,6 @@ export async function POST(req: NextRequest) {
     })
     .returning();
 
-  return ok({ id: rows[0].id, url });
+  return ok({ id: rows[0].id, url, uploadedToR2 });
 }
 

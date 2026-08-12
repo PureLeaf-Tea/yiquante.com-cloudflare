@@ -2,13 +2,15 @@
 
 // 前台页脚（Footer.tsx）
 // 06 号文档 §2：深绿背景页脚，仅首页显示（非首页返回 null）
-// 内容：品牌信息 + 联系方式（02 号文档项目身份）+ 社交媒体占位
+// 内容：品牌信息 + 联系方式（02 号文档项目身份）+ 社交媒体；文案全部走 footer.* 翻译键（收尾任务 2）
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Leaf, Mail, Phone, MessageCircle, MapPin } from 'lucide-react';
 import { isValidLocale } from '@/i18n/config';
 
 export function Footer({ locale }: { locale: string }) {
   const pathname = usePathname();
+  const t = useTranslations('footer');
 
   // 判断是否首页：去掉语言前缀后路径为空
   const segments = pathname.split('/').filter(Boolean);
@@ -25,13 +27,13 @@ export function Footer({ locale }: { locale: string }) {
             <Leaf size={22} className="text-brand-gold" aria-hidden="true" />
             <span className="font-serif text-lg">YiQuanTea</span>
           </div>
-          <p className="mt-3 text-sm text-white/70">Whole Leaf · Pure Nature</p>
-          <p className="mt-1 text-sm text-white/70">懿泉茶叶有限公司</p>
+          <p className="mt-3 text-sm text-white/70">{t('slogan')}</p>
+          <p className="mt-1 text-sm text-white/70">{t('companyName')}</p>
         </div>
 
         {/* 联系方式 */}
         <div>
-          <h3 className="mb-3 text-sm font-semibold text-brand-gold">联系我们</h3>
+          <h3 className="mb-3 text-sm font-semibold text-brand-gold">{t('contactUs')}</h3>
           <ul className="space-y-2 text-sm text-white/80">
             <li className="flex items-center gap-2">
               <Mail size={15} aria-hidden="true" /> yqtea.cn@gmail.com
@@ -43,21 +45,21 @@ export function Footer({ locale }: { locale: string }) {
               <MessageCircle size={15} aria-hidden="true" /> WhatsApp +86 13333827003
             </li>
             <li className="flex items-center gap-2">
-              <MapPin size={15} aria-hidden="true" /> 中岳嵩山
+              <MapPin size={15} aria-hidden="true" /> {t('location')}
             </li>
           </ul>
         </div>
 
-        {/* 社交媒体占位（阶段 15 接 social_links 数据表） */}
+        {/* 社交媒体（真实链接由 social_links 数据表提供） */}
         <div>
-          <h3 className="mb-3 text-sm font-semibold text-brand-gold">关注我们</h3>
-          <p className="text-sm text-white/70">微信：ZenSongshanTea</p>
-          <p className="mt-2 text-sm text-white/50">更多社交渠道即将上线</p>
+          <h3 className="mb-3 text-sm font-semibold text-brand-gold">{t('followUs')}</h3>
+          <p className="text-sm text-white/70">{t('wechat')}: ZenSongshanTea</p>
+          <p className="mt-2 text-sm text-white/50">{t('moreSoon')}</p>
         </div>
       </div>
 
       <div className="border-t border-white/10 py-4 text-center text-xs text-white/50">
-        © {new Date().getFullYear()} YiQuanTea · yiquantea.com
+        © {new Date().getFullYear()} YiQuanTea · yiquantea.com · {t('rights')}
       </div>
     </footer>
   );

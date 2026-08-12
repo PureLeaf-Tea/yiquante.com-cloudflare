@@ -1,0 +1,32 @@
+{
+  "name": "懿泉茶业 YiQuanTea",
+  "short_name": "懿泉茶业",
+  "description": "嵩山原叶茶批发与出口 | Mount Song whole-leaf tea wholesale",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#166534",
+  "background_color": "#ffffff",
+  "lang": "zh",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
