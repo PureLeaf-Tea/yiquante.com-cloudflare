@@ -3,7 +3,7 @@
 // GET：询价列表（需认证，带筛选分页）
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { eq, desc, sql } from 'drizzle-orm';
+import { eq, desc, sql, and, inArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { inquiries, inquiryItems, chatMessages } from '@/drizzle/schema';
 import { getClientIp } from '@/lib/rate-limit';
@@ -99,8 +99,6 @@ export async function GET(req: NextRequest) {
       assignedTo: inquiries.assignedTo,
       source: inquiries.source,
       createdAt: inquiries.createdAt,
-      // 未读消息数：客户发的且员工未读
-      unreadMessages: sql<number>`(SELECT count(*)::int FROM chat_messages WHERE inquiry_id = ${inquiries.id} AND sender_type = 'customer' AND is_read = false)`,
     })
     .from(inquiries)
     .where(where)
@@ -110,6 +108,35 @@ export async function GET(req: NextRequest) {
 
   const countRows = await db.select({ count: sql<number>`count(*)::int` }).from(inquiries).where(where);
 
-  return ok(rows, { total: countRows[0]?.count || 0, page, pageSize });
+  // ★关联字段改为 JS 端聚合（drizzle 关联标量子查询不可靠，阶段 9/16 两次验证）
+  const ids = rows.map((r) => r.id);
+  let unreadMap = new Map<string, number>();
+  let itemNamesMap = new Map<string, string[]>();
+  if (ids.length > 0) {
+    const [unreadRows, itemRows] = await Promise.all([
+      db
+        .select({ inquiryId: chatMessages.inquiryId, n: sql<number>`count(*)::int` })
+        .from(chatMessages)
+        .where(and(inArray(chatMessages.inquiryId, ids), eq(chatMessages.senderType, 'customer'), eq(chatMessages.isRead, false)))
+        .groupBy(chatMessages.inquiryId),
+      db
+        .select({ inquiryId: inquiryItems.inquiryId, productName: inquiryItems.productName })
+        .from(inquiryItems)
+        .where(inArray(inquiryItems.inquiryId, ids)),
+    ]);
+    unreadMap = new Map(unreadRows.map((u) => [u.inquiryId, u.n]));
+    for (const it of itemRows) {
+      if (!itemNamesMap.has(it.inquiryId)) itemNamesMap.set(it.inquiryId, []);
+      if (it.productName) itemNamesMap.get(it.inquiryId)!.push(it.productName);
+    }
+  }
+
+  const enriched = rows.map((r) => ({
+    ...r,
+    unreadMessages: unreadMap.get(r.id) || 0,
+    itemNames: itemNamesMap.get(r.id) ?? null,
+  }));
+
+  return ok(enriched, { total: countRows[0]?.count || 0, page, pageSize });
 }
 

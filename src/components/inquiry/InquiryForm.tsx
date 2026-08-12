@@ -43,10 +43,16 @@ export function InquiryForm({ locale }: { locale: string }) {
           items: items.map((i) => ({ productId: i.productId, productName: i.productName, quantity: i.quantity })),
         }),
       });
-      const data = (await res.json()) as { success?: boolean; error?: string; data?: { id: string } };
+      const data = (await res.json()) as { success?: boolean; error?: string; data?: { id: string; chatToken?: string } };
       if (!res.ok || !data.success) {
         toastError(data.error || (zh ? '提交失败，请重试' : 'Submit failed, please retry'));
         return;
+      }
+      // 保存聊天凭证：前台聊天窗口凭此与客服沟通（ChatWidget 读取）
+      try {
+        localStorage.setItem('inquiry_chat_id', data.data?.chatToken || data.data?.id || '');
+      } catch {
+        // 存储失败不阻断
       }
       setSuccessId(data.data?.id ?? null);
       clear(); // 提交成功后清空询价车

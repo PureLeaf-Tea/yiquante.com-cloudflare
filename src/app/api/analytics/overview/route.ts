@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   const days = Math.min(365, Math.max(1, Number(req.nextUrl.searchParams.get('days')) || 30));
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
-  const [summary, daily] = await Promise.all([
+  const [summary, daily, sources] = await Promise.all([
     db
       .select({
         totalViews: sql<number>`count(*)::int`,
@@ -34,6 +34,15 @@ export async function GET(req: NextRequest) {
       .where(gte(productViewLogs.timestamp, since))
       .groupBy(sql`to_char(${productViewLogs.timestamp}, 'YYYY-MM-DD')`)
       .orderBy(sql`to_char(${productViewLogs.timestamp}, 'YYYY-MM-DD')`),
+    // 来源分布（website 前台 / showcase B2B 展示区）
+    db
+      .select({
+        source: productViewLogs.source,
+        views: sql<number>`count(*)::int`,
+      })
+      .from(productViewLogs)
+      .where(gte(productViewLogs.timestamp, since))
+      .groupBy(productViewLogs.source),
   ]);
 
   return ok({
@@ -43,6 +52,7 @@ export async function GET(req: NextRequest) {
     uniqueProducts: summary[0]?.uniqueProducts || 0,
     avgDurationMs: summary[0]?.avgDuration || 0,
     daily,
+    sourceCounts: sources,
   });
 }
 

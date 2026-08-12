@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { GDPRConsentBanner } from '@/components/layout/GDPRConsentBanner';
 import { StorefrontProviders } from '@/components/storefront/StorefrontProviders';
+import { ChatWidget } from '@/components/chat/ChatWidget';
 
 export default function MainLayout({
   children,
@@ -19,6 +20,7 @@ export default function MainLayout({
       <main className="min-h-screen">{children}</main>
       <Footer locale={locale} />
       <GDPRConsentBanner />
+      <ChatWidget locale={locale} />
     </StorefrontProviders>
   );
 }
