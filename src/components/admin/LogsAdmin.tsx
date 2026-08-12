@@ -69,7 +69,7 @@ export function LogsAdmin() {
             只读
           </span>
         </h1>
-        <div className="flex gap-2">
+        <div className="flex w-full flex-wrap gap-2 md:w-auto">
           <input
             type="text"
             value={targetType}
@@ -79,7 +79,7 @@ export function LogsAdmin() {
             }}
             placeholder="按类型过滤，如 product"
             aria-label="按操作类型过滤"
-            className="min-h-10 w-44 rounded-btn border border-gray-300 bg-white px-3 text-sm outline-none focus:border-brand-green"
+            className="min-h-10 w-full rounded-btn border border-gray-300 bg-white px-3 text-sm outline-none focus:border-brand-green md:w-44"
           />
           <input
             type="text"
@@ -90,7 +90,7 @@ export function LogsAdmin() {
             }}
             placeholder="按目标 ID 过滤"
             aria-label="按目标 ID 过滤"
-            className="min-h-10 w-52 rounded-btn border border-gray-300 bg-white px-3 text-sm outline-none focus:border-brand-green"
+            className="min-h-10 w-full rounded-btn border border-gray-300 bg-white px-3 text-sm outline-none focus:border-brand-green md:w-52"
           />
         </div>
       </div>
