@@ -13,6 +13,12 @@ export const siteConfig = pgTable('site_config', {
   // 品牌色（后台"网站设置"可调，前台 CSS 变量消费）
   brandColorPrimary: varchar('brand_color_primary', { length: 20 }),
   brandColorSecondary: varchar('brand_color_secondary', { length: 20 }),
+  // Logo 图片 URL（阶段 17 增补，R2/本地占位均可）
+  logoUrl: varchar('logo_url', { length: 500 }),
+  // 品牌字体（serif / sans，前台字体栈开关）
+  fontFamily: varchar('font_family', { length: 50 }),
+  // 多语言开关（关闭后前台固定英文）
+  multiLanguageEnabled: boolean('multi_language_enabled').default(true).notNull(),
   // 联系信息（页脚 + 联系我们页展示）
   contactEmail: varchar('contact_email', { length: 100 }),
   contactPhone: varchar('contact_phone', { length: 30 }),

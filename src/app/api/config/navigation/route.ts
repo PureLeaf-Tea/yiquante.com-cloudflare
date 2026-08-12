@@ -19,6 +19,9 @@ export async function GET(req: NextRequest) {
 }
 
 const itemSchema = z.object({
+  // 保留原 id：整表重建时维持二级菜单 parentId 引用稳定
+  id: z.string().uuid().optional(),
+  parentId: z.string().uuid().optional().nullable(),
   labelZh: z.string().min(1).max(50),
   labelEn: z.string().min(1).max(50),
   href: z.string().min(1).max(200),
@@ -39,7 +42,11 @@ export async function PUT(req: NextRequest) {
   let order = 0;
   for (const item of parsed.data.items) {
     await db.insert(navigationItems).values({
-      ...item,
+      ...(item.id ? { id: item.id } : {}),
+      parentId: item.parentId ?? null,
+      labelZh: item.labelZh,
+      labelEn: item.labelEn,
+      href: item.href,
       openInNewTab: item.openInNewTab ?? false,
       sortOrder: item.sortOrder ?? order,
       isActive: item.isActive ?? true,

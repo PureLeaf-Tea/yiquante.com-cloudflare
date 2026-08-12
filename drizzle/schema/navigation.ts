@@ -3,6 +3,8 @@ import { pgTable, uuid, varchar, integer, boolean, timestamp } from 'drizzle-orm
 
 export const navigationItems = pgTable('navigation_items', {
   id: uuid('id').defaultRandom().primaryKey(),
+  // 父级菜单（可空 = 一级菜单；阶段 17 增补，支持二级下拉）
+  parentId: uuid('parent_id'),
   // 菜单文字（中英双语，其余语言显示英文）
   labelZh: varchar('label_zh', { length: 50 }).notNull(),
   labelEn: varchar('label_en', { length: 50 }).notNull(),
