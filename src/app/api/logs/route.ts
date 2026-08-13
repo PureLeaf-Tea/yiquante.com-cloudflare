@@ -5,13 +5,11 @@ import type { NextRequest } from 'next/server';
 import { desc, sql, eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { operationLogs } from '@/drizzle/schema';
-import { ok, requireUser, isFail, getPagination } from '@/lib/api-helpers';
+import { ok, getPagination, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: NextRequest) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async (req: NextRequest) => {
 
   const { page, pageSize, offset } = getPagination(req);
 
@@ -34,5 +32,5 @@ export async function GET(req: NextRequest) {
   const countRows = await db.select({ count: sql<number>`count(*)::int` }).from(operationLogs).where(where);
 
   return ok(rows, { total: countRows[0]?.count || 0, page, pageSize });
-}
+}, ['admin']);
 

@@ -3,13 +3,11 @@ import type { NextRequest } from 'next/server';
 import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { chatMessages } from '@/drizzle/schema';
-import { ok, requireUser, isFail } from '@/lib/api-helpers';
+import { ok, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-export async function PATCH(_req: NextRequest, { params }: { params: { id: string } }) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const PATCH = withAuth(async (_req: NextRequest, { params }: { params: { id: string } }) => {
 
   // 员工打开聊天窗口：把客户发的消息全部标记已读
   await db
@@ -18,4 +16,4 @@ export async function PATCH(_req: NextRequest, { params }: { params: { id: strin
     .where(and(eq(chatMessages.inquiryId, params.id), eq(chatMessages.senderType, 'customer'), eq(chatMessages.isRead, false)));
 
   return ok(null);
-}
+});

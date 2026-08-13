@@ -1,10 +1,11 @@
+import type { AuthUser } from '@/lib/auth';
 // GET/PUT /api/config/seo/[key] — 页面级 SEO 设置（05 号文档 §十二）
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { seoSettings } from '@/drizzle/schema';
-import { ok, fail, parseBody, requireUser, isFail, logOperation, rateLimitPublic } from '@/lib/api-helpers';
+import { ok, fail, parseBody, logOperation, rateLimitPublic, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -24,9 +25,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
 }
 
 // PUT：保存 SEO 设置（admin；按 key upsert）
-export async function PUT(req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const PUT = withAuth(async (req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   if (!VALID_KEYS.includes(params.key)) return fail('页面不存在', 404);
 
@@ -61,4 +60,4 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
 
   await logOperation(auth, 'update', 'seo_setting', params.key);
   return ok(row);
-}
+}, ['admin']);

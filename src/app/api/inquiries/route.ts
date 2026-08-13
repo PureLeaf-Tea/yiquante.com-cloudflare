@@ -8,7 +8,7 @@ import { db } from '@/lib/db';
 import { inquiries, inquiryItems, chatMessages } from '@/drizzle/schema';
 import { getClientIp } from '@/lib/rate-limit';
 import { validateCaptcha } from '@/lib/captcha';
-import { ok, fail, parseBody, rateLimited, requireUser, isFail, getPagination } from '@/lib/api-helpers';
+import { ok, fail, parseBody, rateLimited, getPagination, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -79,9 +79,7 @@ export async function POST(req: NextRequest) {
 }
 
 // GET：询价列表（需认证）
-export async function GET(req: NextRequest) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async (req: NextRequest) => {
 
   const { page, pageSize, offset } = getPagination(req);
   const status = req.nextUrl.searchParams.get('status');
@@ -138,5 +136,5 @@ export async function GET(req: NextRequest) {
   }));
 
   return ok(enriched, { total: countRows[0]?.count || 0, page, pageSize });
-}
+});
 

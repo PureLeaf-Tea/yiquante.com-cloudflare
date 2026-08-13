@@ -1,10 +1,11 @@
+import type { AuthUser } from '@/lib/auth';
 // PUT/DELETE /api/products/[id]/videos/[videoId]（05 号文档 §六）
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { productVideos } from '@/drizzle/schema';
-import { ok, fail, parseBody, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { ok, fail, parseBody, logOperation, withAuth } from '@/lib/api-helpers';
 import { removeFile, keyFromUrl } from '@/lib/r2';
 
 export const runtime = 'nodejs';
@@ -12,9 +13,7 @@ export const runtime = 'nodejs';
 type RouteContext = { params: { id: string; videoId: string } };
 
 // PUT：编辑视频信息（标题/排序/缩略图）
-export async function PUT(req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const PUT = withAuth(async (req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   const parsed = await parseBody(
     z.object({
@@ -35,12 +34,10 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
 
   await logOperation(auth, 'update', 'product_video', params.videoId);
   return ok(rows[0]);
-}
+});
 
 // DELETE：删除视频（同步删 R2 文件，收尾任务 3）
-export async function DELETE(_req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const DELETE = withAuth(async (_req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   const existing = await db
     .select()
@@ -62,4 +59,4 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
 
   await logOperation(auth, 'delete', 'product_video', params.videoId);
   return ok({ id: params.videoId });
-}
+});

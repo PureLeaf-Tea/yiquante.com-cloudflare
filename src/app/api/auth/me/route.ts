@@ -1,14 +1,14 @@
-﻿// GET /api/auth/me — 获取当前登录用户（05 号文档 §1.2）
+import type { NextRequest } from 'next/server';
+import type { AuthUser } from '@/lib/auth';
+// GET /api/auth/me — 获取当前登录用户（05 号文档 §1.2）
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { users } from '@/drizzle/schema';
-import { ok, fail, requireUser, isFail } from '@/lib/api-helpers';
+import { ok, fail, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async (_req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
 
   // 刷新最后活跃时间（1 小时无操作退出的判断依据）
   await db.update(users).set({ lastActivityAt: new Date() }).where(eq(users.id, auth.id));
@@ -27,5 +27,5 @@ export async function GET() {
 
   if (!rows[0]) return fail('未登录', 401);
   return ok(rows[0]);
-}
+});
 

@@ -1,3 +1,4 @@
+import type { AuthUser } from '@/lib/auth';
 // GET/PUT /api/config/page/[key] — 页面内容（05 号文档 §十二）
 // key: about / privacy / terms / contact / certifications
 import type { NextRequest } from 'next/server';
@@ -5,7 +6,7 @@ import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { pageContents } from '@/drizzle/schema';
-import { ok, fail, parseBody, requireUser, isFail, logOperation, rateLimitPublic } from '@/lib/api-helpers';
+import { ok, fail, parseBody, logOperation, rateLimitPublic, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -26,9 +27,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
 }
 
 // PUT：保存页面内容（需登录；按 key upsert）
-export async function PUT(req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const PUT = withAuth(async (req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   if (!VALID_KEYS.includes(params.key)) return fail('页面不存在', 404);
 
@@ -64,4 +63,4 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
 
   await logOperation(auth, 'update', 'page_content', params.key);
   return ok(row);
-}
+});

@@ -7,17 +7,15 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { showcaseCategories, users } from '@/drizzle/schema';
 import { encrypt, decrypt } from '@/lib/crypto';
-import { verifyPassword } from '@/lib/auth';
-import { ok, fail, parseBody, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { verifyPassword , type AuthUser } from '@/lib/auth';
+import { ok, fail, parseBody, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
 type RouteContext = { params: { id: string } };
 
 // PUT：修改 B2B 密码
-export async function PUT(req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const PUT = withAuth(async (req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   const parsed = await parseBody(z.object({ newPassword: z.string().min(4).max(64) }), req);
   if ('error' in parsed) return parsed.error;
@@ -34,13 +32,11 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
   // ★密码变更必记日志（04 §7.6）；已签发 token 24 小时内仍有效（旧密码客户不受影响）
   await logOperation(auth, 'update', 'showcase_password', params.id);
   return ok(null);
-}
+}, ['admin']);
 
 // GET：查看明文密码（需二次输入管理员密码验证）
 // 管理员密码支持两种传法：?adminPassword=查询参数（标准）或请求体（兼容 05 号文档写法）
-export async function GET(req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async (req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   let adminPassword = req.nextUrl.searchParams.get('adminPassword') || '';
   if (!adminPassword) {
@@ -67,4 +63,4 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
 
   await logOperation(auth, 'view', 'showcase_password', params.id);
   return ok({ password });
-}
+}, ['admin']);

@@ -1,3 +1,4 @@
+import type { AuthUser } from '@/lib/auth';
 ﻿// GET/POST /api/showcase/categories（05 号文档 §3.1/§3.3）
 // GET 公开：B2B 分类卡片列表（不返回密码相关字段）
 // POST 仅 admin：创建 B2B 分类（密码 AES-GCM 加密存储）
@@ -7,7 +8,7 @@ import { eq, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { showcaseCategories, showcaseProducts } from '@/drizzle/schema';
 import { encrypt } from '@/lib/crypto';
-import { ok, fail, parseBody, rateLimitPublic, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { ok, fail, parseBody, rateLimitPublic, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -56,9 +57,7 @@ const createSchema = z.object({
 });
 
 // POST：创建 B2B 分类（仅 admin，07 号文档：editor 不可操作展示区）
-export async function POST(req: NextRequest) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const POST = withAuth(async (req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
 
   const parsed = await parseBody(createSchema, req);
   if ('error' in parsed) return parsed.error;
@@ -87,5 +86,5 @@ export async function POST(req: NextRequest) {
 
   await logOperation(auth, 'create', 'showcase_category', rows[0].id, body.nameZh);
   return ok({ id: rows[0].id, nameZh: rows[0].nameZh, slug: rows[0].slug });
-}
+}, ['admin']);
 

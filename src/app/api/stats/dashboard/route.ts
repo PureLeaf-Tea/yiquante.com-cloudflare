@@ -10,13 +10,11 @@ import {
   chatMessages,
   productViewLogs,
 } from '@/drizzle/schema';
-import { ok, requireUser, isFail } from '@/lib/api-helpers';
+import { ok, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async () => {
 
   // 今日零点（本地时区）
   const todayStart = new Date();
@@ -55,5 +53,5 @@ export async function GET() {
     viewsTotal: viewsTotal[0]?.count || 0,
     viewsToday: viewsToday[0]?.count || 0,
   });
-}
+});
 

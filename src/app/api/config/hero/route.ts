@@ -1,19 +1,18 @@
+import type { AuthUser } from '@/lib/auth';
 // GET/POST /api/config/hero — Hero 轮播图管理（阶段 17 新增，admin）
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { heroImages } from '@/drizzle/schema';
-import { ok, fail, parseBody, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { ok, fail, parseBody, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
-  const auth = await requireUser(['admin', 'editor']);
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async () => {
   const rows = await db.select().from(heroImages);
   return ok(rows.sort((a, b) => a.sortOrder - b.sortOrder));
-}
+}, ['admin', 'editor']);
 
 const heroSchema = z.object({
   imageUrl: z.string().min(1).max(500),
@@ -26,9 +25,7 @@ const heroSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-export async function POST(req: NextRequest) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const POST = withAuth(async (req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
   const parsed = await parseBody(heroSchema, req);
   if ('error' in parsed) return parsed.error;
 
@@ -38,4 +35,4 @@ export async function POST(req: NextRequest) {
     .returning();
   await logOperation(auth, 'create', 'hero_image', rows[0].id, parsed.data.titleZh || '');
   return ok(rows[0]);
-}
+}, ['admin']);

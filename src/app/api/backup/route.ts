@@ -1,4 +1,6 @@
-﻿// GET/POST /api/backup — 备份管理（05 号文档 §十，仅 admin）
+import type { NextRequest } from 'next/server';
+import type { AuthUser } from '@/lib/auth';
+// GET/POST /api/backup — 备份管理（05 号文档 §十，仅 admin）
 // GET：备份状态 + R2 文件列表；POST：导出主要表 JSON → 真实上传 R2（收尾任务 3）
 // R2 凭据未配置时返回演练模式（向后兼容）
 import { db } from '@/lib/db';
@@ -10,7 +12,7 @@ import {
   navigationItems, pageContents, siteConfig, seoSettings, socialLinks, searchKeywords,
   showcaseCategories, showcaseProducts, showcaseTranslations, operationLogs, gdprConsents,
 } from '@/drizzle/schema';
-import { ok, fail, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { ok, fail, logOperation, withAuth } from '@/lib/api-helpers';
 import { uploadFile, listFiles, isR2Configured } from '@/lib/r2';
 
 export const runtime = 'nodejs';
@@ -18,9 +20,7 @@ export const runtime = 'nodejs';
 const BACKUP_PREFIX = 'backups/';
 
 // GET：备份状态（07 §3.7）
-export async function GET() {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async () => {
 
   const r2Configured = isR2Configured();
 
@@ -59,12 +59,10 @@ export async function GET() {
     backups,
     tableCounts: rows?.[0] ?? null,
   });
-}
+}, ['admin']);
 
 // POST：手动触发备份（导出主要表 → JSON → 上传 R2）
-export async function POST() {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const POST = withAuth(async (_req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
 
   if (!isR2Configured()) {
     // 凭据未配置：明确告知演练模式（保持向后兼容）
@@ -165,4 +163,4 @@ export async function POST() {
 
   await logOperation(auth, 'backup', 'database', filename, `备份 ${Math.round(json.length / 1024)}KB`);
   return ok({ success: true, filename, sizeBytes: json.length });
-}
+}, ['admin']);

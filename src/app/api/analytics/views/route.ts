@@ -3,13 +3,11 @@ import type { NextRequest } from 'next/server';
 import { eq, sql, gte, desc } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { productViewLogs, products } from '@/drizzle/schema';
-import { ok, requireUser, isFail } from '@/lib/api-helpers';
+import { ok, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: NextRequest) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async (req: NextRequest) => {
 
   const days = Math.min(365, Math.max(1, Number(req.nextUrl.searchParams.get('days')) || 30));
   const limit = Math.min(100, Math.max(1, Number(req.nextUrl.searchParams.get('limit')) || 20));
@@ -32,5 +30,5 @@ export async function GET(req: NextRequest) {
     .limit(limit);
 
   return ok(rows);
-}
+});
 

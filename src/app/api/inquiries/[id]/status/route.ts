@@ -1,16 +1,15 @@
+import type { AuthUser } from '@/lib/auth';
 // PATCH /api/inquiries/[id]/status — 更新询价状态（05 号文档 §7.4，需认证）
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { inquiries } from '@/drizzle/schema';
-import { ok, fail, parseBody, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { ok, fail, parseBody, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const PATCH = withAuth(async (req: NextRequest, { params }: { params: { id: string } }, auth: AuthUser) => {
 
   const parsed = await parseBody(
     z.object({
@@ -33,4 +32,4 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   await logOperation(auth, 'update', 'inquiry_status', params.id);
   return ok(rows[0]);
-}
+});

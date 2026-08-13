@@ -1,47 +1,14 @@
 'use client';
 
 // 询价管理 + 实时聊天（InquiryAdmin.tsx）
-// 左 30% 询价列表 + 右 70% 微信风格聊天窗；5 秒轮询（开发方案，后续改 WebSocket）
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Paperclip, Send, Check, CheckCheck, Package } from 'lucide-react';
-import { Select } from '@/components/ui/Select';
-import { Pagination } from '@/components/ui/Pagination';
+// R2 拆分：左列表面板 → inquiry/InquiryListPanel.tsx；右聊天面板 → inquiry/InquiryChatPanel.tsx；
+// 共享类型 → inquiry/inquiryShared.ts。本组件保留数据加载/轮询/发送/附件等全部逻辑。
+// 5 秒轮询（开发方案，后续改 WebSocket）
+import { useCallback, useEffect, useState } from 'react';
 import { toastError } from '@/components/ui/Toast';
-import { cn } from '@/lib/cn';
-
-interface InquiryRow {
-  id: string;
-  name: string;
-  email: string;
-  status: string;
-  createdAt: string;
-  unreadMessages: number;
-  itemNames: string[] | null;
-}
-
-interface ChatMessage {
-  id: string;
-  senderType: string;
-  senderName: string | null;
-  content: string;
-  attachment: string | null;
-  isRead: boolean;
-  createdAt: string;
-}
-
-const STATUS_MAP: Record<string, { label: string; cls: string }> = {
-  new: { label: '新询价', cls: 'bg-brand-gold/20 text-yellow-700' },
-  replied: { label: '已回复', cls: 'bg-brand-green/10 text-brand-green' },
-  quoted: { label: '已报价', cls: 'bg-blue-50 text-blue-600' },
-  closed: { label: '已关闭', cls: 'bg-gray-100 text-gray-400' },
-};
-
-const PAGE_SIZE = 25;
-
-function timeStr(iso: string) {
-  const d = new Date(iso);
-  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-}
+import { PAGE_SIZE, type InquiryRow, type ChatMessage } from './inquiry/inquiryShared';
+import { InquiryListPanel } from './inquiry/InquiryListPanel';
+import { InquiryChatPanel } from './inquiry/InquiryChatPanel';
 
 export function InquiryAdmin() {
   const [rows, setRows] = useState<InquiryRow[]>([]);
@@ -57,7 +24,6 @@ export function InquiryAdmin() {
   const [pendingAttachment, setPendingAttachment] = useState<string | null>(null);
   // 移动端：列表/聊天切换
   const [mobileChatOpen, setMobileChatOpen] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
 
   // ---------- 列表 ----------
   const loadList = useCallback(async () => {
@@ -106,11 +72,6 @@ export function InquiryAdmin() {
     }, 5000);
     return () => clearInterval(timer);
   }, [selectedId, loadList, loadMessages]);
-
-  // 新消息自动滚到底部
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length]);
 
   const selectInquiry = (id: string) => {
     setSelectedId(id);
@@ -176,205 +137,36 @@ export function InquiryAdmin() {
       <h1 className="text-xl font-bold text-gray-800">询价管理</h1>
 
       <div className="flex h-[calc(100vh-180px)] min-h-[480px] gap-4">
-        {/* 左侧列表（30%） */}
-        <div
-          className={cn(
-            'flex w-full flex-col rounded-xl border border-gray-100 bg-white md:w-[30%]',
-            mobileChatOpen && 'hidden md:flex'
-          )}
-        >
-          <div className="border-b border-gray-100 p-3">
-            <Select
-              options={[
-                { value: 'all', label: '全部状态' },
-                { value: 'new', label: '新询价' },
-                { value: 'replied', label: '已回复' },
-                { value: 'quoted', label: '已报价' },
-                { value: 'closed', label: '已关闭' },
-              ]}
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setPage(1);
-              }}
-            />
-          </div>
+        <InquiryListPanel
+          rows={rows}
+          total={total}
+          page={page}
+          statusFilter={statusFilter}
+          selectedId={selectedId}
+          hiddenOnMobile={mobileChatOpen}
+          onSelect={selectInquiry}
+          onFilter={(v) => {
+            setStatusFilter(v);
+            setPage(1);
+          }}
+          onPage={setPage}
+        />
 
-          <div className="flex-1 overflow-y-auto">
-            {rows.length === 0 ? (
-              <p className="py-10 text-center text-sm text-gray-400">暂无询价</p>
-            ) : (
-              rows.map((row) => {
-                const st = STATUS_MAP[row.status] || { label: row.status, cls: 'bg-gray-100 text-gray-500' };
-                return (
-                  <button
-                    key={row.id}
-                    type="button"
-                    onClick={() => selectInquiry(row.id)}
-                    className={cn(
-                      'block w-full border-b border-gray-50 px-3 py-3 text-left transition-colors hover:bg-gray-50',
-                      selectedId === row.id && 'bg-brand-green/5'
-                    )}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="flex-1 truncate text-sm font-medium text-gray-800">{row.name}</span>
-                      {row.unreadMessages > 0 && (
-                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white">
-                          {row.unreadMessages}
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className={cn('rounded px-1.5 py-0.5 text-xs', st.cls)}>{st.label}</span>
-                      <span className="truncate text-xs text-gray-400">
-                        {row.itemNames?.filter(Boolean).join('、') || row.email}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-xs text-gray-300">{timeStr(row.createdAt)}</p>
-                  </button>
-                );
-              })
-            )}
-          </div>
-
-          {total > PAGE_SIZE && (
-            <div className="border-t border-gray-100 p-2">
-              <Pagination page={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
-            </div>
-          )}
-        </div>
-
-        {/* 右侧聊天窗（70%） */}
-        <div
-          className={cn(
-            'flex w-full flex-col rounded-xl border border-gray-100 bg-white md:w-[70%]',
-            !mobileChatOpen && 'hidden md:flex'
-          )}
-        >
-          {!selectedId ? (
-            <div className="flex flex-1 flex-col items-center justify-center gap-3 text-gray-300">
-              <Package size={40} aria-hidden="true" />
-              <p className="text-sm">选择左侧询价开始聊天</p>
-            </div>
-          ) : (
-            <>
-              {/* 聊天头部 */}
-              <div className="flex items-center gap-2 border-b border-gray-100 px-4 py-3">
-                <button
-                  type="button"
-                  aria-label="返回列表"
-                  onClick={() => setMobileChatOpen(false)}
-                  className="rounded p-1.5 text-gray-500 hover:bg-gray-100 md:hidden"
-                >
-                  <ArrowLeft size={17} />
-                </button>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-800">{selected?.name}</p>
-                  <p className="text-xs text-gray-400">{selected?.email}</p>
-                </div>
-                <span
-                  className={cn(
-                    'rounded px-2 py-0.5 text-xs',
-                    (STATUS_MAP[selected?.status || ''] || { cls: 'bg-gray-100 text-gray-500' }).cls
-                  )}
-                >
-                  {(STATUS_MAP[selected?.status || ''] || { label: selected?.status }).label}
-                </span>
-              </div>
-
-              {/* 消息区（微信风格） */}
-              <div className="flex-1 space-y-3 overflow-y-auto bg-gray-50/50 p-4">
-                {messages.map((m) => {
-                  const isStaff = m.senderType === 'staff';
-                  return (
-                    <div key={m.id} className={cn('flex', isStaff ? 'justify-end' : 'justify-start')}>
-                      <div className={cn('max-w-[75%]', isStaff ? 'text-right' : 'text-left')}>
-                        <p className="mb-1 text-xs text-gray-400">
-                          {m.senderName || (isStaff ? '客服' : '客户')} · {timeStr(m.createdAt)}
-                          {isStaff && (
-                            <span className="ml-1 inline-flex align-middle" title={m.isRead ? '已读' : '未读'}>
-                              {m.isRead ? (
-                                <CheckCheck size={13} className="text-brand-green" aria-hidden="true" />
-                              ) : (
-                                <Check size={13} className="text-gray-400" aria-hidden="true" />
-                              )}
-                            </span>
-                          )}
-                        </p>
-                        <div
-                          className={cn(
-                            'inline-block whitespace-pre-line break-words rounded-xl px-3 py-2 text-sm',
-                            isStaff ? 'rounded-br-sm bg-brand-green text-white' : 'rounded-bl-sm bg-gray-200 text-gray-800'
-                          )}
-                        >
-                          {m.content}
-                          {m.attachment && (
-                            <a
-                              href={m.attachment}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={cn('mt-1 block text-xs underline', isStaff ? 'text-white/80' : 'text-brand-green')}
-                            >
-                              查看附件
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-                <div ref={bottomRef} />
-              </div>
-
-              {/* 输入区 */}
-              <div className="border-t border-gray-100 p-3">
-                {pendingAttachment && (
-                  <p className="mb-2 flex items-center gap-2 text-xs text-brand-green">
-                    <Paperclip size={13} aria-hidden="true" />
-                    附件已就绪，将随消息发送
-                    <button type="button" onClick={() => setPendingAttachment(null)} className="text-gray-400 hover:text-red-600">
-                      取消
-                    </button>
-                  </p>
-                )}
-                <div className="flex items-end gap-2">
-                  <label
-                    className="inline-flex min-h-10 min-w-10 cursor-pointer items-center justify-center rounded-btn border border-gray-200 text-gray-500 hover:border-brand-gold hover:text-brand-gold"
-                    title="上传附件"
-                  >
-                    <Paperclip size={17} aria-hidden="true" />
-                    <input type="file" className="hidden" onChange={attach} disabled={attaching} />
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      // Enter 发送，Shift+Enter 换行
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        send();
-                      }
-                    }}
-                    placeholder="输入消息，Enter 发送，Shift+Enter 换行"
-                    aria-label="聊天输入框"
-                    className="flex-1 resize-none rounded-btn border border-gray-300 px-3 py-2 text-sm outline-none placeholder:text-gray-400 focus:border-brand-green"
-                  />
-                  <button
-                    type="button"
-                    onClick={send}
-                    disabled={sending || attaching}
-                    aria-label="发送"
-                    className="inline-flex min-h-10 items-center gap-1.5 rounded-btn bg-brand-green px-5 text-sm font-medium text-white hover:bg-brand-green/90 disabled:opacity-50"
-                  >
-                    <Send size={15} aria-hidden="true" />
-                    发送
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
+        <InquiryChatPanel
+          selected={selected}
+          selectedId={selectedId}
+          messages={messages}
+          input={input}
+          sending={sending}
+          attaching={attaching}
+          pendingAttachment={pendingAttachment}
+          hiddenOnMobile={!mobileChatOpen}
+          onInput={setInput}
+          onSend={send}
+          onAttach={attach}
+          onCancelAttachment={() => setPendingAttachment(null)}
+          onBackToList={() => setMobileChatOpen(false)}
+        />
       </div>
     </div>
   );

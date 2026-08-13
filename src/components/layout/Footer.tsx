@@ -13,14 +13,15 @@ export function Footer({ locale }: { locale: string }) {
   const pathname = usePathname();
   const t = useTranslations('footer');
 
-  // ★M5 修复：联系方式改读 site_config（后台可改），配置为空时回退原硬编码兜底值
-  const [contact, setContact] = useState({ phone: '+86 15515928905', whatsapp: '+86 13333827003' });
+  // ★M5/R8 修复：联系方式改读 site_config（后台可改），配置为空时回退原硬编码兜底值
+  const [contact, setContact] = useState({ email: 'yqtea.cn@gmail.com', phone: '+86 15515928905', whatsapp: '+86 13333827003' });
   useEffect(() => {
     fetch('/api/config/site')
-      .then((r) => r.json() as Promise<{ success?: boolean; data?: { contactPhone?: string; whatsapp?: string } }>)
+      .then((r) => r.json() as Promise<{ success?: boolean; data?: { contactEmail?: string; contactPhone?: string; whatsapp?: string } }>)
       .then((d) => {
         if (d.success && d.data) {
           setContact({
+            email: d.data.contactEmail || 'yqtea.cn@gmail.com',
             phone: d.data.contactPhone || '+86 15515928905',
             whatsapp: d.data.whatsapp || '+86 13333827003',
           });
@@ -55,7 +56,7 @@ export function Footer({ locale }: { locale: string }) {
           <h3 className="mb-3 text-sm font-semibold text-brand-gold">{t('contactUs')}</h3>
           <ul className="space-y-2 text-sm text-white/80">
             <li className="flex items-center gap-2">
-              <Mail size={15} aria-hidden="true" /> yqtea.cn@gmail.com
+              <Mail size={15} aria-hidden="true" /> {contact.email}
             </li>
             <li className="flex items-center gap-2">
               <Phone size={15} aria-hidden="true" /> {contact.phone}

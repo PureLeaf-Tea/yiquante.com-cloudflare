@@ -16,8 +16,8 @@ import {
   showcaseCategories,
   categories,
 } from '@/drizzle/schema';
-import { getCurrentUser } from '@/lib/auth';
-import { ok, fail, parseBody, rateLimitPublic, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { getCurrentUser , type AuthUser } from '@/lib/auth';
+import { ok, fail, parseBody, rateLimitPublic, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -133,9 +133,7 @@ const updateSchema = z.object({
 });
 
 // PUT：编辑产品（需登录）
-export async function PUT(req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const PUT = withAuth(async (req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   const parsed = await parseBody(updateSchema, req);
   if ('error' in parsed) return parsed.error;
@@ -156,12 +154,10 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
 
   await logOperation(auth, 'update', 'product', params.id);
   return ok(rows[0]);
-}
+});
 
 // DELETE：删除产品（需登录；图片/翻译/布局等外键 cascade 自动清理）
-export async function DELETE(_req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const DELETE = withAuth(async (_req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   const existing = await db.select().from(products).where(eq(products.id, params.id)).limit(1);
   if (!existing[0]) return fail('产品不存在', 404);
@@ -170,4 +166,4 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
 
   await logOperation(auth, 'delete', 'product', params.id, existing[0].nameZh);
   return ok({ id: params.id });
-}
+});

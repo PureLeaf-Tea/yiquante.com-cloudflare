@@ -1,9 +1,10 @@
+import type { AuthUser } from '@/lib/auth';
 ﻿// POST /api/upload — 通用文件上传（05 号文档 §十二，需登录）
 // type: image / video / chat；白名单 + 大小校验；真实上传 R2（收尾任务 3），凭据缺失时降级占位
 import type { NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { uploads } from '@/drizzle/schema';
-import { ok, fail, rateLimited, requireUser, isFail } from '@/lib/api-helpers';
+import { ok, fail, rateLimited, withAuth } from '@/lib/api-helpers';
 import { uploadFile, isR2Configured, publicUrl } from '@/lib/r2';
 
 export const runtime = 'nodejs';
@@ -15,9 +16,7 @@ const RULES: Record<string, { types: string[]; maxBytes: number }> = {
   chat: { types: ['image/jpeg', 'image/png', 'image/webp'], maxBytes: 5 * 1024 * 1024 },
 };
 
-export async function POST(req: NextRequest) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const POST = withAuth(async (req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
 
   // 限流：10 次/分钟/IP（05 号文档限流表）
   const limited = await rateLimited(req, 'upload', 10, 60);
@@ -98,5 +97,5 @@ export async function POST(req: NextRequest) {
     .returning();
 
   return ok({ id: rows[0].id, url, uploadedToR2 });
-}
+});
 

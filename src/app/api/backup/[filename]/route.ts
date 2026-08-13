@@ -1,14 +1,12 @@
 // GET /api/backup/[filename] — 下载备份文件（05 号文档 §十，仅 admin）
 // ★文件名白名单校验防目录穿越（../ 一律拒绝）；从 R2 读取真实文件（收尾任务 3）
 import type { NextRequest } from 'next/server';
-import { fail, requireUser, isFail } from '@/lib/api-helpers';
+import { fail, withAuth } from '@/lib/api-helpers';
 import { readFile, isR2Configured } from '@/lib/r2';
 
 export const runtime = 'nodejs';
 
-export async function GET(_req: NextRequest, { params }: { params: { filename: string } }) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async (_req: NextRequest, { params }: { params: { filename: string } }) => {
 
   const filename = params.filename;
   // 白名单：只允许 backup-*.json 格式，拒绝任何路径分隔符与穿越字符
@@ -29,4 +27,4 @@ export async function GET(_req: NextRequest, { params }: { params: { filename: s
       'Content-Disposition': `attachment; filename="${filename}"`,
     },
   });
-}
+}, ['admin']);

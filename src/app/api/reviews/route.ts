@@ -1,3 +1,4 @@
+import type { AuthUser } from '@/lib/auth';
 ﻿// GET/POST /api/reviews — 客户评价（05 号文档 §十二）
 // GET：已发布评价（前台首页用，公开）/ 全部评价（带 status=all 需认证）
 // POST：提交评价（需登录，后台代录；前台评价入口阶段 17 接）
@@ -6,7 +7,7 @@ import { z } from 'zod';
 import { eq, desc, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { reviews } from '@/drizzle/schema';
-import { ok, fail, parseBody, rateLimitPublic, requireUser, isFail, logOperation, getPagination } from '@/lib/api-helpers';
+import { ok, fail, parseBody, rateLimitPublic, requireUser, isFail, logOperation, getPagination, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -45,9 +46,7 @@ const createSchema = z.object({
   status: z.enum(['pending', 'published', 'rejected']).optional(),
 });
 
-export async function POST(req: NextRequest) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const POST = withAuth(async (req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
 
   const parsed = await parseBody(createSchema, req);
   if ('error' in parsed) return parsed.error;
@@ -67,5 +66,5 @@ export async function POST(req: NextRequest) {
 
   await logOperation(auth, 'create', 'review', rows[0].id);
   return ok(rows[0]);
-}
+});
 

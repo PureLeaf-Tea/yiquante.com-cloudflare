@@ -49,10 +49,9 @@
     }
   ],
   // 环境变量（非敏感值；密钥一律 wrangler secret put，见文件末尾说明）
+  // R6：RATE_LIMIT_PUBLIC/RATE_LIMIT_LOGIN 为死配置已移除（src 零引用，阈值硬编码在调用点）
   "vars": {
     "NEXT_PUBLIC_SITE_URL": "https://yiquantea.com",
-    "RATE_LIMIT_PUBLIC": "60",
-    "RATE_LIMIT_LOGIN": "5",
     "BACKUP_RETENTION_DAYS": "7"
   }
   // ★密钥（不在代码里写死）：AUTH_SECRET、DATABASE_URL、RESEND_API_KEY、

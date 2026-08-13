@@ -8,6 +8,7 @@ import { getCurrentUser, hasRole, type AuthUser } from './auth';
 import { getKV } from './kv';
 import { checkRateLimit, getClientIp } from './rate-limit';
 import { db } from './db';
+import { logger } from './logger';
 import { operationLogs } from '@/drizzle/schema';
 
 // ★统一成功响应（05 号文档 §〇）：{ success: true, data, ...extra(total/page/pageSize) }
@@ -33,6 +34,25 @@ export async function requireUser(roles?: string[]): Promise<AuthResult> {
 
 export function isFail(result: AuthResult): result is NextResponse {
   return result instanceof NextResponse;
+}
+
+// ★R3：路由鉴权包装器——替代各路由手写的 requireUser + isFail 样板
+// 用法：export const POST = withAuth(async (req, ctx, auth) => {...}, ['admin']);
+// 参数顺序保持 Next.js 风格 (req, ctx) 在前，auth 第三位；不需要 auth 的 handler 可省略后续参数
+// roles 缺省 = 任意已登录用户；鉴权失败直接返回 401/403（与原手写逻辑一致）
+export function withAuth<C extends { params: Record<string, string> } = { params: Record<string, string> }>(
+  handler: (
+    req: NextRequest,
+    ctx: C,
+    auth: AuthUser
+  ) => Promise<Response>,
+  roles?: string[]
+): (req: NextRequest, ctx: C) => Promise<Response> {
+  return async (req, ctx) => {
+    const auth = await requireUser(roles);
+    if (isFail(auth)) return auth;
+    return handler(req, ctx, auth);
+  };
 }
 
 // ★zod 请求体校验包装：解析失败统一 400
@@ -99,7 +119,7 @@ export async function logOperation(
     `);
   } catch (error) {
     // 日志失败不阻断主业务
-    console.error('[LOG ERROR]', error);
+    logger.error('[LOG ERROR]', error);
   }
 }
 

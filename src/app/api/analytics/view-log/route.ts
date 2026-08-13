@@ -7,14 +7,12 @@ import { desc, sql, eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { productViewLogs, products } from '@/drizzle/schema';
 import { getClientIp } from '@/lib/rate-limit';
-import { ok, fail, parseBody, rateLimitPublic, requireUser, isFail, getPagination } from '@/lib/api-helpers';
+import { ok, fail, parseBody, rateLimitPublic, getPagination, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
 // GET：浏览明细列表（倒序分页，可带 productId 过滤）
-export async function GET(req: NextRequest) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async (req: NextRequest) => {
 
   const { page, pageSize, offset } = getPagination(req);
   const productId = req.nextUrl.searchParams.get('productId');
@@ -41,7 +39,7 @@ export async function GET(req: NextRequest) {
   const countRows = await db.select({ count: sql<number>`count(*)::int` }).from(productViewLogs).where(where);
 
   return ok(rows, { total: countRows[0]?.count || 0, page, pageSize });
-}
+});
 
 export async function POST(req: NextRequest) {
   const limited = await rateLimitPublic(req, 'read');

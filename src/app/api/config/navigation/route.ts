@@ -1,3 +1,4 @@
+import type { AuthUser } from '@/lib/auth';
 ﻿// GET/PUT /api/config/navigation — 前台导航菜单（05 号文档 §十二）
 // GET 公开（Header 渲染用）；PUT 需登录（整表替换式保存）
 import type { NextRequest } from 'next/server';
@@ -5,7 +6,7 @@ import { z } from 'zod';
 import { asc } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { navigationItems } from '@/drizzle/schema';
-import { ok, parseBody, requireUser, isFail, logOperation, rateLimitPublic } from '@/lib/api-helpers';
+import { ok, parseBody, logOperation, rateLimitPublic, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -31,9 +32,7 @@ const itemSchema = z.object({
 });
 
 // PUT：保存导航（传入完整列表，清空重建——导航项少，简单可靠）
-export async function PUT(req: NextRequest) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const PUT = withAuth(async (req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
 
   const parsed = await parseBody(z.object({ items: z.array(itemSchema).min(1).max(20) }), req);
   if ('error' in parsed) return parsed.error;
@@ -57,5 +56,5 @@ export async function PUT(req: NextRequest) {
 
   await logOperation(auth, 'update', 'navigation');
   return ok({ count: parsed.data.items.length });
-}
+});
 

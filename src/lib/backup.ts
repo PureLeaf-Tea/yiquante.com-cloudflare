@@ -4,6 +4,7 @@
 // 再用 Workers Cron + Drizzle 导出核心 SQL 存到 R2 做冷备兜底（保留 7 天）。
 import { sql } from 'drizzle-orm';
 import type { DB } from './db';
+import { logger } from './logger';
 
 // 冷备范围：核心业务表（Neon PITR 可以恢复所有表，这里导出 SQL 是额外的异地兜底）
 const BACKUP_TABLES = ['users', 'categories', 'products', 'inquiries', 'sample_requests', 'reviews'] as const;
@@ -62,7 +63,7 @@ export async function runBackup(
 
     return { success: true, filename };
   } catch (error) {
-    console.error('[BACKUP ERROR]', error);
+    logger.error('[BACKUP ERROR]', error);
     return { success: false, error: String(error) };
   }
 }

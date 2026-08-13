@@ -1,3 +1,4 @@
+import type { AuthUser } from '@/lib/auth';
 // PATCH /api/samples/[id]/status — 样品状态流转 + 物流单号（05 号文档 §八）
 // 流转：new → processing → shipped（填单号）→ delivered → closed
 import type { NextRequest } from 'next/server';
@@ -5,13 +6,11 @@ import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { sampleRequests } from '@/drizzle/schema';
-import { ok, fail, parseBody, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { ok, fail, parseBody, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const PATCH = withAuth(async (req: NextRequest, { params }: { params: { id: string } }, auth: AuthUser) => {
 
   const parsed = await parseBody(
     z.object({
@@ -43,4 +42,4 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   await logOperation(auth, 'update', 'sample_status', params.id, parsed.data.status);
   return ok(rows[0]);
-}
+});

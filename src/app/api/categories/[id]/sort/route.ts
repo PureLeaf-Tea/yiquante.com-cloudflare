@@ -1,3 +1,4 @@
+import type { AuthUser } from '@/lib/auth';
 // PUT /api/categories/[id]/sort — 分类排序（05 号文档 §二）
 // direction: up / down，在同级分类间交换 sortOrder
 import type { NextRequest } from 'next/server';
@@ -5,7 +6,7 @@ import { z } from 'zod';
 import { eq, isNull } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { categories } from '@/drizzle/schema';
-import { ok, fail, parseBody, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { ok, fail, parseBody, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -13,9 +14,7 @@ const sortSchema = z.object({
   direction: z.enum(['up', 'down']),
 });
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const PUT = withAuth(async (req: NextRequest, { params }: { params: { id: string } }, auth: AuthUser) => {
 
   const parsed = await parseBody(sortSchema, req);
   if ('error' in parsed) return parsed.error;
@@ -43,4 +42,4 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   await logOperation(auth, 'update', 'category', current.id, `sort ${parsed.data.direction}`);
   return ok({ id: current.id, sortOrder: b });
-}
+});

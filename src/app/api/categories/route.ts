@@ -1,10 +1,11 @@
+import type { AuthUser } from '@/lib/auth';
 ﻿// GET/POST /api/categories — 分类树查询 + 新增分类（05 号文档 §二）
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { eq, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { categories, products } from '@/drizzle/schema';
-import { ok, fail, parseBody, rateLimitPublic, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { ok, fail, parseBody, rateLimitPublic, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -62,9 +63,7 @@ const createSchema = z.object({
 });
 
 // POST：新增分类（需登录；同级名称不可重复）
-export async function POST(req: NextRequest) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const POST = withAuth(async (req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
 
   const parsed = await parseBody(createSchema, req);
   if ('error' in parsed) return parsed.error;
@@ -101,5 +100,5 @@ export async function POST(req: NextRequest) {
 
   await logOperation(auth, 'create', 'category', rows[0].id, body.nameZh);
   return ok(rows[0]);
-}
+});
 

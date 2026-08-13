@@ -1,3 +1,4 @@
+import type { AuthUser } from '@/lib/auth';
 // /api/showcase/categories/[id]/products（05 号文档 §3.10/§3.11）
 // GET：公开，需 X-B2B-Token 头（[id] 位传 categorySlug）
 // POST/DELETE：仅 admin，管理分类下的产品关联
@@ -6,7 +7,7 @@ import { z } from 'zod';
 import { eq, and, or, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { showcaseCategories, showcaseProducts, products } from '@/drizzle/schema';
-import { ok, fail, parseBody, rateLimitPublic, requireUser, isFail, logOperation, getPagination } from '@/lib/api-helpers';
+import { ok, fail, parseBody, rateLimitPublic, logOperation, getPagination, withAuth } from '@/lib/api-helpers';
 import { verifyShowcaseToken } from '@/lib/b2b';
 
 export const runtime = 'nodejs';
@@ -95,9 +96,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
 }
 
 // POST：添加产品到展示区分类（admin）
-export async function POST(req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const POST = withAuth(async (req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   const parsed = await parseBody(
     z.object({
@@ -137,12 +136,10 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
   await logOperation(auth, 'create', 'showcase_product', rows[0].id, `${category.nameZh} <- ${parsed.data.productId}`);
   return ok(rows[0]);
-}
+}, ['admin']);
 
 // DELETE：从展示区分类移除产品（admin；产品本身不删）
-export async function DELETE(req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const DELETE = withAuth(async (req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   const parsed = await parseBody(z.object({ productId: z.string().uuid() }), req);
   if ('error' in parsed) return parsed.error;
@@ -158,4 +155,4 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
 
   await logOperation(auth, 'delete', 'showcase_product', category.id, parsed.data.productId);
   return ok(null);
-}
+}, ['admin']);

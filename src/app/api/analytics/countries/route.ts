@@ -3,13 +3,11 @@ import type { NextRequest } from 'next/server';
 import { sql, gte, desc } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { productViewLogs } from '@/drizzle/schema';
-import { ok, requireUser, isFail } from '@/lib/api-helpers';
+import { ok, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: NextRequest) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async (req: NextRequest) => {
 
   const days = Math.min(365, Math.max(1, Number(req.nextUrl.searchParams.get('days')) || 30));
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -25,5 +23,5 @@ export async function GET(req: NextRequest) {
     .orderBy(desc(sql`count(*)`));
 
   return ok(rows);
-}
+});
 

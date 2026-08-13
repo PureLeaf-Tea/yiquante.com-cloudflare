@@ -1,3 +1,4 @@
+import type { AuthUser } from '@/lib/auth';
 // GET/PUT/DELETE /api/categories/[id]（05 号文档 §二）
 // DELETE 规则（04 §7.1）：受保护分类禁删；子分类上移一级；产品移入"00 未分类"
 import type { NextRequest } from 'next/server';
@@ -5,7 +6,7 @@ import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { categories, products } from '@/drizzle/schema';
-import { ok, fail, parseBody, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { ok, fail, parseBody, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -27,9 +28,7 @@ const updateSchema = z.object({
 });
 
 // PUT：编辑分类（需登录）
-export async function PUT(req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const PUT = withAuth(async (req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   const parsed = await parseBody(updateSchema, req);
   if ('error' in parsed) return parsed.error;
@@ -49,12 +48,10 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
 
   await logOperation(auth, 'update', 'category', params.id);
   return ok(rows[0]);
-}
+});
 
 // DELETE：删除分类（需登录；产品移入"00 未分类"）
-export async function DELETE(_req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const DELETE = withAuth(async (_req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   const existing = await db.select().from(categories).where(eq(categories.id, params.id)).limit(1);
   const target = existing[0];
@@ -92,4 +89,4 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
 
   await logOperation(auth, 'delete', 'category', params.id, target.nameZh);
   return ok({ id: params.id, productsMovedTo: safeCategoryId });
-}
+});

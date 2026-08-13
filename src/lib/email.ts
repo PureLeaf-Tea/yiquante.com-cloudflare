@@ -1,6 +1,7 @@
 // 邮件发送（email.ts）
 // ★用 Resend HTTP API 发邮件（纯 HTTP 接口，完美适配 Edge Runtime）。
 // 做了抽象层，后面换邮件服务只改这一个文件。
+import { logger } from './logger';
 
 export interface EmailOptions {
   to: string;
@@ -13,9 +14,9 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
     // 开发阶段先打日志，不实际发送
     if (process.env.NODE_ENV !== 'production') {
-      console.log('[EMAIL DEV] To:', options.to);
-      console.log('[EMAIL DEV] Subject:', options.subject);
-      console.log('[EMAIL DEV] Body:', options.html.substring(0, 200) + '...');
+      logger.dev('[EMAIL DEV] To:', options.to);
+      logger.dev('[EMAIL DEV] Subject:', options.subject);
+      logger.dev('[EMAIL DEV] Body:', options.html.substring(0, 200) + '...');
       return true;
     }
 
@@ -36,7 +37,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
 
     return response.ok;
   } catch (error) {
-    console.error('[EMAIL ERROR]', error);
+    logger.error('[EMAIL ERROR]', error);
     return false;
   }
 }

@@ -1,18 +1,17 @@
+import type { AuthUser } from '@/lib/auth';
 // GET/POST /api/config/cta — CTA 按钮管理（阶段 17 新增，admin）
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { ctaButtons } from '@/drizzle/schema';
-import { ok, parseBody, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { ok, parseBody, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
-  const auth = await requireUser(['admin', 'editor']);
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async () => {
   const rows = await db.select().from(ctaButtons);
   return ok(rows.sort((a, b) => a.sortOrder - b.sortOrder));
-}
+}, ['admin', 'editor']);
 
 const ctaSchema = z.object({
   textZh: z.string().min(1).max(100),
@@ -23,12 +22,10 @@ const ctaSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-export async function POST(req: NextRequest) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const POST = withAuth(async (req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
   const parsed = await parseBody(ctaSchema, req);
   if ('error' in parsed) return parsed.error;
   const rows = await db.insert(ctaButtons).values({ ...parsed.data, updatedAt: new Date() }).returning();
   await logOperation(auth, 'create', 'cta_button', rows[0].id, parsed.data.textZh);
   return ok(rows[0]);
-}
+}, ['admin']);

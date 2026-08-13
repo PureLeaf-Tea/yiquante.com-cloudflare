@@ -1,3 +1,4 @@
+import type { AuthUser } from '@/lib/auth';
 // GET/POST /api/inquiries/[id]/messages — 聊天消息（05 号文档 §7.5）
 // GET：消息列表（需认证）；POST：员工发送消息（需认证）
 import type { NextRequest } from 'next/server';
@@ -5,7 +6,7 @@ import { z } from 'zod';
 import { eq, asc } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { inquiries, chatMessages } from '@/drizzle/schema';
-import { ok, fail, parseBody, requireUser, isFail } from '@/lib/api-helpers';
+import { ok, fail, parseBody, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -17,9 +18,7 @@ async function inquiryExists(id: string) {
 }
 
 // GET：消息列表（按时间正序，聊天窗口直接渲染）
-export async function GET(_req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async (_req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   if (!(await inquiryExists(params.id))) return fail('询价不存在', 404);
 
@@ -38,12 +37,10 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
     .orderBy(asc(chatMessages.createdAt));
 
   return ok(rows);
-}
+});
 
 // POST：员工发送消息
-export async function POST(req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const POST = withAuth(async (req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   const parsed = await parseBody(
     z.object({
@@ -77,4 +74,4 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
   }
 
   return ok({ id: rows[0].id });
-}
+});

@@ -1,16 +1,15 @@
+import type { AuthUser } from '@/lib/auth';
 // PUT /api/showcase/categories/[id]/products/sort — 批量排序（05 号文档 §3.11，admin）
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { showcaseCategories, showcaseProducts } from '@/drizzle/schema';
-import { ok, fail, parseBody, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { ok, fail, parseBody, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const PUT = withAuth(async (req: NextRequest, { params }: { params: { id: string } }, auth: AuthUser) => {
 
   const parsed = await parseBody(z.object({ productIds: z.array(z.string().uuid()).min(1) }), req);
   if ('error' in parsed) return parsed.error;
@@ -29,4 +28,4 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   await logOperation(auth, 'update', 'showcase_products_sort', params.id);
   return ok(null);
-}
+}, ['admin']);

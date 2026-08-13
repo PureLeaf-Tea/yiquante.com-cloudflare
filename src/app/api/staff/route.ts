@@ -5,15 +5,13 @@ import { z } from 'zod';
 import { eq, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { users } from '@/drizzle/schema';
-import { hashPassword } from '@/lib/auth';
-import { ok, fail, parseBody, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { hashPassword , type AuthUser } from '@/lib/auth';
+import { ok, fail, parseBody, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
 // GET：员工列表（admin；不返回密码哈希）
-export async function GET() {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const GET = withAuth(async () => {
 
   const rows = await db
     .select({
@@ -28,7 +26,7 @@ export async function GET() {
     .from(users);
 
   return ok(rows);
-}
+}, ['admin']);
 
 const createSchema = z.object({
   username: z.string().min(1).max(20),
@@ -38,9 +36,7 @@ const createSchema = z.object({
 });
 
 // POST：新建员工（admin）
-export async function POST(req: NextRequest) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const POST = withAuth(async (req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
 
   const parsed = await parseBody(createSchema, req);
   if ('error' in parsed) return parsed.error;
@@ -63,5 +59,5 @@ export async function POST(req: NextRequest) {
 
   await logOperation(auth, 'create', 'staff', rows[0].id, body.username);
   return ok({ id: rows[0].id, username: rows[0].username, name: rows[0].name, role: rows[0].role });
-}
+}, ['admin']);
 

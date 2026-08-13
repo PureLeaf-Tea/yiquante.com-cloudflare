@@ -1,10 +1,11 @@
+import type { AuthUser } from '@/lib/auth';
 ﻿// GET/PUT /api/config/social — 社交媒体链接（05 号文档 §十二）
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { asc } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { socialLinks } from '@/drizzle/schema';
-import { ok, parseBody, requireUser, isFail, logOperation, rateLimitPublic } from '@/lib/api-helpers';
+import { ok, parseBody, logOperation, rateLimitPublic, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -27,9 +28,7 @@ const itemSchema = z.object({
 });
 
 // PUT：保存社交链接（整表替换）
-export async function PUT(req: NextRequest) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const PUT = withAuth(async (req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
 
   const parsed = await parseBody(z.object({ items: z.array(itemSchema).min(0).max(20) }), req);
   if ('error' in parsed) return parsed.error;
@@ -50,5 +49,5 @@ export async function PUT(req: NextRequest) {
 
   await logOperation(auth, 'update', 'social_links');
   return ok({ count: parsed.data.items.length });
-}
+});
 

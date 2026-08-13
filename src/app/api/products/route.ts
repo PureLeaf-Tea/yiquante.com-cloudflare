@@ -1,3 +1,4 @@
+import type { AuthUser } from '@/lib/auth';
 ﻿// GET/POST /api/products（05 号文档 §4.1/§4.3）
 // GET：产品列表（公开，分页 25；status=all 需认证）
 // POST：新增产品（multipart/form-data，需认证；图片真实上传 R2，凭据缺失时降级占位）
@@ -5,7 +6,7 @@ import type { NextRequest } from 'next/server';
 import { eq, and, or, like, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { products, productImages, productPageLayouts, categories, uploads } from '@/drizzle/schema';
-import { ok, fail, rateLimitPublic, requireUser, isFail, logOperation, getPagination } from '@/lib/api-helpers';
+import { ok, fail, rateLimitPublic, requireUser, isFail, logOperation, getPagination, withAuth } from '@/lib/api-helpers';
 import { uploadFile, isR2Configured, publicUrl } from '@/lib/r2';
 
 export const runtime = 'nodejs';
@@ -69,9 +70,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST：新增产品（multipart/form-data）
-export async function POST(req: NextRequest) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const POST = withAuth(async (req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
 
   let form: FormData;
   try {
@@ -158,5 +157,5 @@ export async function POST(req: NextRequest) {
 
   await logOperation(auth, 'create', 'product', product.id, nameZh);
   return ok({ id: product.id, slug: product.slug });
-}
+});
 

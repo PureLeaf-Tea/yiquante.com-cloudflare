@@ -86,6 +86,7 @@ npm run deploy    # opennextjs-cloudflare build && deploy（构建并部署到 C
 4. **OpenNext Windows 支持为官方声明的 best-effort**：正式 CI/CD 建议 Linux 环境。
 5. **R2 桶公开访问**需在 Cloudflare 控制台开启后上传文件才可公网直访。
 6. 备份当前为后台手动触发（JSON 导出存 R2），自动备份 Cron 待独立 scheduled Worker 实现。
+7. **限流阈值当前硬编码在各调用点**（公开 60/min、登录 5/min、B2B 5/30min、上传 10/min 等）；RATE_LIMIT_* 环境变量为死配置已于 R6 移除，如需可配置化另行安排。
 
 ## 8. 文档
 

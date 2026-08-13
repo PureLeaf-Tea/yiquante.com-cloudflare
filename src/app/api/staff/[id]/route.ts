@@ -5,17 +5,15 @@ import { z } from 'zod';
 import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { users } from '@/drizzle/schema';
-import { hashPassword } from '@/lib/auth';
-import { ok, fail, parseBody, requireUser, isFail, logOperation } from '@/lib/api-helpers';
+import { hashPassword , type AuthUser } from '@/lib/auth';
+import { ok, fail, parseBody, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
 type RouteContext = { params: { id: string } };
 
 // PUT：编辑员工（角色/状态/姓名/重置密码）
-export async function PUT(req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const PUT = withAuth(async (req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   const parsed = await parseBody(
     z.object({
@@ -50,12 +48,10 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
 
   await logOperation(auth, 'update', 'staff', params.id);
   return ok({ id: rows[0].id, username: rows[0].username, name: rows[0].name, role: rows[0].role, status: rows[0].status });
-}
+}, ['admin']);
 
 // DELETE：删除员工（admin；最后一个 admin 保护）
-export async function DELETE(_req: NextRequest, { params }: RouteContext) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const DELETE = withAuth(async (_req: NextRequest, { params }: RouteContext, auth: AuthUser) => {
 
   if (params.id === auth.id) return fail('不能删除当前登录的账号', 400);
 
@@ -71,4 +67,4 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
 
   await logOperation(auth, 'delete', 'staff', params.id, existing[0].username);
   return ok({ id: params.id });
-}
+}, ['admin']);

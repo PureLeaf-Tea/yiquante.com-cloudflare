@@ -46,10 +46,10 @@ export default async function ProductDetailPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      {/* schema.org 结构化数据 */}
+      {/* schema.org 结构化数据；R4：将 '<' 转义为 \u003c（合法 JSON 转义，语义不变），防产品名/描述含 </script> 截断标签 */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
       {/* 面包屑 */}
       <nav className="mb-6 flex items-center gap-1.5 text-sm text-gray-400" aria-label="面包屑">

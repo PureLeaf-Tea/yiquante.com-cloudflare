@@ -1,3 +1,4 @@
+import type { AuthUser } from '@/lib/auth';
 ﻿// GET/PUT /api/config/homepage — 首页配置（05 号文档 §十二）
 // homepage_config 单例的 configJson：区块显隐、标题文案等全局设置
 // （Hero/卖点/认证/CTA 的子表数据在阶段 15 首页编辑模块按表单独管理）
@@ -6,7 +7,7 @@ import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { homepageConfig } from '@/drizzle/schema';
-import { ok, parseBody, requireUser, isFail, logOperation, rateLimitPublic } from '@/lib/api-helpers';
+import { ok, parseBody, logOperation, rateLimitPublic, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -25,9 +26,7 @@ export async function GET(req: NextRequest) {
 }
 
 // PUT：保存首页配置（需登录；整体替换 configJson）
-export async function PUT(req: NextRequest) {
-  const auth = await requireUser();
-  if (isFail(auth)) return auth;
+export const PUT = withAuth(async (req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
 
   const parsed = await parseBody(z.object({ config: z.record(z.unknown()) }), req);
   if ('error' in parsed) return parsed.error;
@@ -42,5 +41,5 @@ export async function PUT(req: NextRequest) {
 
   await logOperation(auth, 'update', 'homepage_config');
   return ok({ config: parsed.data.config });
-}
+});
 

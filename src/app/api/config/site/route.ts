@@ -1,3 +1,4 @@
+import type { AuthUser } from '@/lib/auth';
 ﻿// GET/PUT /api/config/site — 网站设置（05 号文档 §十二）
 // site_config 是单例表（id='main'）；GET 公开（前台渲染需要），PUT 仅 admin
 import type { NextRequest } from 'next/server';
@@ -5,7 +6,7 @@ import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { siteConfig } from '@/drizzle/schema';
-import { ok, parseBody, requireUser, isFail, logOperation, rateLimitPublic } from '@/lib/api-helpers';
+import { ok, parseBody, logOperation, rateLimitPublic, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
@@ -44,9 +45,7 @@ const updateSchema = z.object({
 });
 
 // PUT：更新网站设置（admin）
-export async function PUT(req: NextRequest) {
-  const auth = await requireUser(['admin']);
-  if (isFail(auth)) return auth;
+export const PUT = withAuth(async (req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
 
   const parsed = await parseBody(updateSchema, req);
   if ('error' in parsed) return parsed.error;
@@ -64,5 +63,5 @@ export async function PUT(req: NextRequest) {
 
   await logOperation(auth, 'update', 'site_config', 'main');
   return ok(row);
-}
+}, ['admin']);
 
