@@ -1,6 +1,6 @@
 // 首页配置（homepage.ts）—— 表 19-23/33
 // 首页编辑模块的数据源：主配置 + Hero 轮播图 + 卖点 + 认证 + CTA 按钮
-import { pgTable, uuid, varchar, integer, boolean, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, pgEnum, uuid, varchar, integer, boolean, text, timestamp } from 'drizzle-orm/pg-core';
 
 // 首页主配置（单例：只有一条记录，种子数据创建）
 // 存放首页全局设置（区块显隐、标题文案等），JSON 格式方便后续扩展不改表结构
@@ -11,12 +11,17 @@ export const homepageConfig = pgTable('homepage_config', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Hero 轮播图（3-5 张，自动切换 5 秒）
+// Hero 轮播图归属端（N1：电脑端/手机端两套独立轮播列表）
+export const heroDeviceEnum = pgEnum('hero_device', ['desktop', 'mobile']);
+
+// Hero 轮播图（电脑端/手机端两套独立列表，自动切换 5 秒）
 export const heroImages = pgTable('hero_images', {
   id: uuid('id').defaultRandom().primaryKey(),
   homepageConfigId: uuid('homepage_config_id').references(() => homepageConfig.id, {
     onDelete: 'cascade',
   }),
+  // N1 加列（additive）：归属端，存量数据默认全部归电脑端
+  device: heroDeviceEnum('device').default('desktop').notNull(),
   imageUrl: varchar('image_url', { length: 500 }).notNull(),
   // 叠加在图上的标题 + 副标题（中英双语）
   titleZh: varchar('title_zh', { length: 200 }),

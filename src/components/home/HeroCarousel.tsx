@@ -1,7 +1,7 @@
 'use client';
 
-// Hero 轮播区（06 号文档 §3.1）
-// 3-5 张图自动切换 5 秒；桌面 1920×800 比例、移动端 750×900 比例；即时加载（首屏不懒加载）
+// Hero 轮播区（06 号文档 §3.1；N1：电脑/手机两套独立列表，variant 控制比例）
+// 自动切换 5 秒；desktop 变体 12:5 横图比例、mobile 变体 5:6 竖图比例；即时加载（首屏不懒加载）
 import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/cn';
@@ -12,7 +12,7 @@ export interface HeroSlide {
   subtitle: string;
 }
 
-export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
+export function HeroCarousel({ slides, variant }: { slides: HeroSlide[]; variant: 'desktop' | 'mobile' }) {
   const [current, setCurrent] = useState(0);
 
   // 自动切换：5 秒一张
@@ -28,8 +28,8 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 
   return (
     <section aria-label="首页轮播" className="relative w-full overflow-hidden bg-brand-green">
-      {/* 移动端 750×900 比例，桌面端 1920×800 比例（06 §3.1） */}
-      <div className="relative aspect-[750/900] w-full md:aspect-[1920/800] md:max-h-[800px]">
+      {/* N1：desktop 变体 12:5 横图比例；mobile 变体 5:6 竖图比例 */}
+      <div className={cn('relative w-full', variant === 'mobile' ? 'aspect-[750/900]' : 'aspect-[1920/800] max-h-[800px]')}>
         {slides.map((slide, i) => (
           <div
             key={slide.imageUrl}
@@ -46,11 +46,13 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
               className="h-full w-full object-cover"
               loading="eager"
             />
-            {/* 标题 + 标语叠加在图上 */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/25 px-6 text-center">
-              <h1 className="font-serif text-3xl text-white drop-shadow md:text-5xl">{slide.title}</h1>
-              <p className="mt-3 text-base text-brand-gold drop-shadow md:text-xl">{slide.subtitle}</p>
-            </div>
+            {/* 标题 + 标语叠加在图上；N1：标题与副标题均为空时不渲染文字层 */}
+            {(slide.title || slide.subtitle) && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/25 px-6 text-center">
+                <h1 className="font-serif text-3xl text-white drop-shadow md:text-5xl">{slide.title}</h1>
+                <p className="mt-3 text-base text-brand-gold drop-shadow md:text-xl">{slide.subtitle}</p>
+              </div>
+            )}
           </div>
         ))}
       </div>

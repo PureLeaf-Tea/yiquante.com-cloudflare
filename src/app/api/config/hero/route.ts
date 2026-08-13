@@ -9,13 +9,21 @@ import { ok, fail, parseBody, logOperation, withAuth } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-export const GET = withAuth(async () => {
+export const GET = withAuth(async (req: NextRequest) => {
+  // N1：?device=desktop|mobile 过滤对应端列表；不传返回全部（含 device 字段）
+  const device = req.nextUrl.searchParams.get('device');
+  if (device && device !== 'desktop' && device !== 'mobile') {
+    return fail('device 只能是 desktop 或 mobile', 400);
+  }
   const rows = await db.select().from(heroImages);
-  return ok(rows.sort((a, b) => a.sortOrder - b.sortOrder));
+  const filtered = device ? rows.filter((r) => r.device === device) : rows;
+  return ok(filtered.sort((a, b) => a.sortOrder - b.sortOrder));
 }, ['admin', 'editor']);
 
 const heroSchema = z.object({
   imageUrl: z.string().min(1).max(500),
+  // N1：归属端，缺省 desktop；非法值由 zod 返 400
+  device: z.enum(['desktop', 'mobile']).optional(),
   titleZh: z.string().max(200).optional().nullable(),
   titleEn: z.string().max(200).optional().nullable(),
   subtitleZh: z.string().max(300).optional().nullable(),
@@ -31,7 +39,7 @@ export const POST = withAuth(async (req: NextRequest, _ctx: { params: Record<str
 
   const rows = await db
     .insert(heroImages)
-    .values({ ...parsed.data, updatedAt: new Date() })
+    .values({ ...parsed.data, device: parsed.data.device ?? 'desktop', updatedAt: new Date() })
     .returning();
   await logOperation(auth, 'create', 'hero_image', rows[0].id, parsed.data.titleZh || '');
   return ok(rows[0]);

@@ -1,6 +1,7 @@
 'use client';
 
 // 单区块列表编辑器（R2 拆分自 HomepageAdmin.tsx：列表 + 编辑弹窗 + 排序/显隐/上传）
+// N1：可选 device prop——GET 拼 ?device= 过滤、POST 带 device；渲染 def.aspectHint 与字段 hint
 import { useCallback, useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Upload, Save, ArrowUp, ArrowDown } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
@@ -11,7 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { toastSuccess, toastError } from '@/components/ui/Toast';
 import type { Row, SectionDef } from './homepageSections';
 
-export function SectionEditor({ def }: { def: SectionDef }) {
+export function SectionEditor({ def, device }: { def: SectionDef; device?: 'desktop' | 'mobile' }) {
   const [rows, setRows] = useState<Row[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Row | null>(null);
@@ -20,13 +21,14 @@ export function SectionEditor({ def }: { def: SectionDef }) {
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch(def.endpoint);
+      const url = device ? `${def.endpoint}?device=${device}` : def.endpoint;
+      const res = await fetch(url);
       const data = (await res.json()) as { success?: boolean; data?: Row[] };
       if (data.success && data.data) setRows(data.data);
     } catch {
       // 加载失败保持空
     }
-  }, [def.endpoint]);
+  }, [def.endpoint, device]);
 
   useEffect(() => {
     load();
@@ -84,6 +86,8 @@ export function SectionEditor({ def }: { def: SectionDef }) {
     setSaving(true);
     try {
       const body: Record<string, unknown> = { ...form };
+      // N1：新建时带上归属端（PUT 不动，device 不可改）
+      if (device && !editing) body.device = device;
       // 空链接字段转 null
       ['linkUrl'].forEach((k) => {
         if (k in body && !String(body[k]).trim()) body[k] = null;
@@ -207,6 +211,9 @@ export function SectionEditor({ def }: { def: SectionDef }) {
           {def.imageField && (
             <div>
               <p className="mb-1.5 text-sm font-medium text-gray-700">图片</p>
+              {def.aspectHint && (
+                <p className="mb-2 rounded-lg bg-brand-gold/10 px-3 py-2 text-xs text-gray-600">{def.aspectHint}</p>
+              )}
               <div className="flex items-center gap-3">
                 {form[def.imageField] ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -226,7 +233,10 @@ export function SectionEditor({ def }: { def: SectionDef }) {
             f.type === 'select' ? (
               <Select key={f.name} label={f.label} options={f.options || []} value={form[f.name] || ''} onChange={(e) => setForm((prev) => ({ ...prev, [f.name]: e.target.value }))} />
             ) : (
-              <Input key={f.name} label={f.label} required={f.required} placeholder={`请输入${f.label.replace(/（.*）/, '')}`} value={form[f.name] || ''} onChange={(e) => setForm((prev) => ({ ...prev, [f.name]: e.target.value }))} />
+              <div key={f.name}>
+                <Input label={f.label} required={f.required} placeholder={`请输入${f.label.replace(/（.*）/, '')}`} value={form[f.name] || ''} onChange={(e) => setForm((prev) => ({ ...prev, [f.name]: e.target.value }))} />
+                {f.hint && <p className="mt-1 text-xs text-gray-400">{f.hint}</p>}
+              </div>
             )
           )}
         </div>
