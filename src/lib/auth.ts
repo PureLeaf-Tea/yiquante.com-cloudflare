@@ -5,7 +5,12 @@ import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
 // AUTH_SECRET：JWT 签名密钥（.env 中配置，随机生成至少 32 位）
-const AUTH_SECRET = new TextEncoder().encode(process.env.AUTH_SECRET ?? '');
+// ★S2 安全修复：模块加载时强制校验密钥——缺失/过短直接抛错拒绝启动，
+// 避免空密钥签发的 JWT 被伪造（role:'admin' 令牌伪造风险）
+if (!process.env.AUTH_SECRET || process.env.AUTH_SECRET.length < 32) {
+  throw new Error('AUTH_SECRET 未配置或长度不足 32 位，拒绝启动（请在 .env / wrangler secret 中配置随机密钥）');
+}
+const AUTH_SECRET = new TextEncoder().encode(process.env.AUTH_SECRET);
 const SESSION_DURATION = 60 * 60; // 1 小时（秒）
 
 // 登录用户信息（会编码进 JWT payload）

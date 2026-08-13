@@ -52,3 +52,8 @@ const nextConfig = {
 };
 
 export default withNextIntl(nextConfig);
+
+// ★B1 迁移：OpenNext 官方步骤 12——本地 next dev 时注入 Cloudflare 绑定上下文
+// （使服务端代码在本地开发时也能访问 wrangler 绑定的模拟资源）
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
+initOpenNextCloudflareForDev();

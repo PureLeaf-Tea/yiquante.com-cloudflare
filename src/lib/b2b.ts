@@ -2,7 +2,7 @@
 // 校验顺序：先查 KV（全球缓存，快），未命中再查 showcase_access_tokens 表（持久层兜底）
 import { eq, and, gt } from 'drizzle-orm';
 import { db } from './db';
-import { kv } from './kv';
+import { getKV } from './kv';
 import { showcaseAccessTokens } from '@/drizzle/schema';
 
 const TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24 小时（04 号文档 §7.3）
@@ -24,7 +24,7 @@ export async function issueShowcaseToken(categoryId: string, ip: string | null, 
     userAgent,
     expiresAt,
   });
-  await kv.put(kvKey(categoryId, token), JSON.stringify({ categoryId, expiresAt: expiresAt.getTime() }), {
+  await getKV().put(kvKey(categoryId, token), JSON.stringify({ categoryId, expiresAt: expiresAt.getTime() }), {
     expirationTtl: TOKEN_TTL_SECONDS,
   });
 
@@ -36,7 +36,7 @@ export async function verifyShowcaseToken(categoryId: string, token: string): Pr
   if (!token) return false;
 
   // 1. KV 快路径
-  const cached = await kv.get(kvKey(categoryId, token));
+  const cached = await getKV().get(kvKey(categoryId, token));
   if (cached) {
     try {
       const parsed = JSON.parse(cached) as { expiresAt: number };
@@ -62,7 +62,7 @@ export async function verifyShowcaseToken(categoryId: string, token: string): Pr
 
   const remaining = Math.floor((rows[0].expiresAt.getTime() - Date.now()) / 1000);
   if (remaining > 0) {
-    await kv.put(kvKey(categoryId, token), JSON.stringify({ categoryId, expiresAt: rows[0].expiresAt.getTime() }), {
+    await getKV().put(kvKey(categoryId, token), JSON.stringify({ categoryId, expiresAt: rows[0].expiresAt.getTime() }), {
       expirationTtl: remaining,
     });
   }

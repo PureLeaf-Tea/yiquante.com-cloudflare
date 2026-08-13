@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { sql } from 'drizzle-orm';
 import { getCurrentUser, hasRole, type AuthUser } from './auth';
-import { kv } from './kv';
+import { getKV } from './kv';
 import { checkRateLimit, getClientIp } from './rate-limit';
 import { db } from './db';
 import { operationLogs } from '@/drizzle/schema';
@@ -62,7 +62,7 @@ export async function rateLimited(
   windowSeconds: number
 ): Promise<NextResponse | null> {
   const ip = getClientIp(req);
-  const result = await checkRateLimit(kv, `rl:${keyPrefix}:${ip}`, max, windowSeconds);
+  const result = await checkRateLimit(getKV(), `rl:${keyPrefix}:${ip}`, max, windowSeconds);
   if (!result.allowed) {
     return fail('请求过于频繁，请稍后再试', 429);
   }

@@ -1,0 +1,62 @@
+// Cloudflare Workers 配置（wrangler.jsonc）
+// 本项目用 @opennextjs/cloudflare（OpenNext）适配器部署到 Cloudflare Workers（B1 迁移：替代 next-on-pages Pages 路线）
+// 官方格式依据：https://opennext.js.org/cloudflare/get-started（2026 现行版）
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "yiquantea-api",
+  "main": ".open-next/worker.js",
+  // OpenNext 硬性要求 compatibility_date ≥ 2024-09-23
+  "compatibility_date": "2026-05-01",
+  "compatibility_flags": [
+    // 启用 Node.js API（本项目 API 路由均为 nodejs runtime）
+    "nodejs_compat",
+    // 官方模板默认项：仅允许 fetch 公网 URL（出站均为公网 https：Neon/hCaptcha/Resend/R2）
+    "global_fetch_strictly_public"
+  ],
+  // OpenNext 构建产物（opennextjs-cloudflare build 生成，勿改动路径）
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  // Worker 自引用（官方模板，ISR/重验证所需）
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "yiquantea-api"
+    }
+  ],
+  // KV 缓存绑定（KV：全球同步的高速 key-value 缓存）
+  // S5 修复：id 为人工核对过的真实 32 位值（原 31 位值错误，勿再用）
+  "kv_namespaces": [
+    {
+      "binding": "YIQUANTEA_KV",
+      "id": "260b93d1e2b64f188efd2ea41aa3a92f"
+    }
+  ],
+  // D1 数据库绑定（D1：Cloudflare 自带的轻量 SQLite 数据库，仅存分析快照）
+  "d1_databases": [
+    {
+      "binding": "YIQUANTEA_D1",
+      "database_name": "yiquantea-analytics",
+      "database_id": "cb0ad2be-653b-4f2f-ad31-aae79bac66aa"
+    }
+  ],
+  // R2 文件存储绑定（R2：存图片/视频/备份的对象存储）
+  "r2_buckets": [
+    {
+      "binding": "YIQUANTEA_R2",
+      "bucket_name": "yiquantea-assets"
+    }
+  ],
+  // 环境变量（非敏感值；密钥一律 wrangler secret put，见文件末尾说明）
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://yiquantea.com",
+    "RATE_LIMIT_PUBLIC": "60",
+    "RATE_LIMIT_LOGIN": "5",
+    "BACKUP_RETENTION_DAYS": "7"
+  }
+  // ★密钥（不在代码里写死）：AUTH_SECRET、DATABASE_URL、RESEND_API_KEY、
+  // HCAPTCHA_SECRET_KEY、SHOWCASE_PASSWORD_KEY、ADMIN_PASSWORD 等通过
+  // `npx wrangler secret put <KEY>` 逐一设置
+  // ★定时任务说明：备份/日志清理 cron 尚未实现，上线后如需自动备份另建独立 scheduled Worker
+}
