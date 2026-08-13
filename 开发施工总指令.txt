@@ -93,6 +93,8 @@ rate-limit.ts / email.ts / images.ts / backup.ts / gdpr.ts / utils.ts
 
 验证：每个文件单独 import 无报错
 
+> 📝 施工中变更：实际落地 13 个工具文件（另增 crypto.ts/api-helpers.ts，后续又增 captcha.ts/b2b.ts 等），i18n 改为 src/i18n/ 目录（config.ts+request.ts）
+
 
 ═══════════ 阶段 4：自定义 Hook ═══════════
 
@@ -131,6 +133,8 @@ Header/Footer/AdminSidebar/AdminTopbar/GDPRConsentBanner
 每个端点含认证校验、输入验证（zod）、限流检查、错误处理。
 
 验证：每个端点用 curl 测试返回正确
+
+> 📝 施工中变更：阶段 8 实际落地 54 个路由文件/85 端点（真实 Neon 实测 69 项通过）；后续阶段陆续新增，最终为 65 个路由文件（含 search-keywords/[id]、products/[id]/images、showcase/[id]/qrcode、config/hero 等四组、ip-detect 等）
 
 
 ═══════════ 阶段 9：前台首页 ═══════════
@@ -186,6 +190,8 @@ about / certifications / contact / privacy（GDPR声明）/ terms / 404
 
 验证：添加分类、修改密码、查看明文（二次验证）
 
+> 📝 施工中变更：阶段 15 内容实际并入阶段 14 一并完成（阶段 14 = 产品管理+B2B 展示区管理，commit 41e7a39），未单独施工
+
 
 ═══════════ 阶段 16：后台询价+聊天+样品+分析+备份 ═══════════
 
@@ -207,6 +213,8 @@ about / certifications / contact / privacy（GDPR声明）/ terms / 404
 
 验证：npx drizzle-kit studio 查看数据正确
 
+> 📝 施工中变更：阶段 9 先落地最小种子（admin/14分类/14产品/2B2B/4评价/63关键词）；阶段 18 按用户指令改为直接迁移老项目 V3.0 seed-categories.ts（46 节点，合并后 49）并补齐翻译 84 条/社交/SEO/员工/导航，幂等二跑全跳过（commit 0652733）
+
 
 ═══════════ 阶段 19：最终验证 ═══════════
 
@@ -214,6 +222,15 @@ about / certifications / contact / privacy（GDPR声明）/ terms / 404
 2. 前台 6 语言 / IP 检测 / B2B 密码流程 / 懒加载 / 视频播放 / 样品 / GDPR
 3. 后台 1h 超时 / 各模块 CRUD / 聊天 / 分析 / 备份
 4. 移动端 375px 不溢出
+
+> 📝 施工中变更：阶段 19 实际验证范围扩大——99 路由零错零警、前台/后台/移动端 60+ 项 Playwright 取证、16 号上线前检查清单逐项审计，并补齐 8 项上线缺口（sitemap/robots/hreflang/OG/CSP/JSON-LD/locale 级 404/后台全局搜索，commit d50d34f）；另执行收尾任务：PWA、Footer 六语言、R2 真实上传（S3 双模 6 处）、二维码真实生成（commit 6c27c2c）
+
+═══════════════════════════════════════════════
+  📝 施工完结备注：19 个阶段 + 收尾任务已全部完成并提交，
+  commit 链 1f9687f（阶段 1）→ 6c27c2c（收尾）共 23 个提交；
+  剩余事项为上线人工操作（见 16 号检查清单 ⚠️/❌ 项：R2 桶公开访问、
+  真实 Logo 替换、邮件实发、Cloudflare 部署与 DNS 切换等）。
+═══════════════════════════════════════════════
 
 ═══════════════════════════════════════════════
   文档版本：v1.0 | 生成日期：2026-08-11

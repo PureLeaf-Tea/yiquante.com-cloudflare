@@ -35,11 +35,13 @@
 | **Cloudflare Pages**（网页托管） | 把你的网站页面放到全球每一个角落的服务器上，客户从哪个国家访问都很快 | 网站所有页面、前端代码 |
 | **Cloudflare Workers**（后端接口） | 在 Cloudflare 全球网络上运行的小程序，处理客户登录、查产品、提交询价等操作 | 所有 API 接口、业务逻辑 |
 | **Neon Serverless PostgreSQL**（数据库） | 放在云上的数据库，不用自己装、不用自己修，自动备份，随时恢复 | 产品信息、分类、询价记录、用户账号等 33 张业务表 |
-| **Cloudflare KV**（高速缓存） | 全球同步的微型快取，读写极快，适合存临时数据 | 登录状态（session）、访问频率限制计数、B2B 24 小时访问 token |
-| **Cloudflare D1**（轻量数据库） | Cloudflare 自己做的轻量级小数据库，适合存配置类小数据 | 网站设置、GDPR 同意记录、浏览统计汇总数据 |
+| **Cloudflare KV**（高速缓存） | 全球同步的微型快取，读写极快，适合存临时数据 | 访问频率限制计数、B2B 24 小时访问 token、首页配置缓存 |
+| **Cloudflare D1**（轻量数据库） | Cloudflare 自己做的轻量级小数据库，适合存配置类小数据 | 仅存浏览分析快照数据 |
 | **Cloudflare R2**（文件仓库） | 专业存文件的仓库，存图片、视频，不按流量收费（这点很关键） | 产品图片、360°展示图、产品视频、备份文件 |
 | **Cloudflare Images**（图片处理） | 自动压缩、剪裁、转换格式，不用每次手动修图 | 把原图自动变成适合网页的大小和格式 |
 | **Cloudflare DNS**（域名管理） | 域名解析服务——网址访问、SSL 证书、DDoS 防护全在这里管 | yiquantea.com 域名的所有设置 |
+
+> 📝 施工中变更：①登录状态实际用无状态 JWT（httpOnly Cookie，jose 签发校验），KV 不存 session；②网站设置（site_config）与 GDPR 同意记录（gdpr_consents）实际存 Neon，D1 按最终分工仅存分析快照（与 wrangler.toml 注释一致）
 
 > **一句话总结**：Pages 管页面、Workers 管逻辑、Neon 管数据、R2 管文件、KV/D1 管缓存和配置——各干各的，互不拖累。
 
@@ -92,12 +94,14 @@
 | 6 语言切换 | 正常 | 正常 | **完全没变**，使用方式相同 |
 | B2B 加密区 | 独立密码 + 24h token | 独立密码 + 24h token | **完全没变**，密码输入体验一致 |
 | 在线询价 | hCaptcha 验证 | hCaptcha/Turnstile 验证 | **完全没变**，客户填完提交就行 |
-| 在线聊天 | 15 秒轮询 | 15 秒轮询（后期升 WebSocket 实时推送） | **目前一样**，后期消息推送更即时 |
+| 在线聊天 | 15 秒轮询 | 5 秒轮询（后期升 WebSocket 实时推送） | **目前一样**，后期消息推送更即时 |
 | 样品申请 | 提交表单 | 提交表单 | **完全没变** |
 | 后台管理 | 浏览器登录操作 | 浏览器登录操作 | **完全没变**，按钮、菜单、操作逻辑一模一样 |
 | 产品图片 | 本地存储 | R2 存储 | **完全没变**，员工还是上传图片，系统自动处理 |
 | 自动备份 | pg_dump 定时备份 | Neon 自带 PITR + R2 冷备 | 恢复更快、更灵活，后台能看到备份状态 |
 | 网站速度 | 取决于服务器位置 | 全球加速 | **客户感觉打开更快了**，尤其是海外客户 |
+
+> 📝 施工中变更：聊天轮询间隔实际实现为 5 秒（ChatWidget setInterval 5000ms），非原定的 15 秒
 
 ---
 
@@ -154,12 +158,14 @@
 | 5 | 创建 R2 存储桶 | 存图片、视频、备份文件 | 管理员 | Cloudflare 后台 → R2 → Create bucket → 命名 `yiquantea-assets` | 拿到 bucket 名称和 endpoint |
 | 6 | 获取 R2 Access Key | 程序读写 R2 的凭证 | 管理员 | Cloudflare 后台 → R2 → Manage API Tokens → Create | 拿到 Access Key ID 和 Secret |
 | 7 | 创建 KV 命名空间 | 存会话缓存、限流计数、B2B token | 管理员 | Cloudflare 后台 → Workers & Pages → KV → Create namespace → 命名 `YIQUANTEA-KV` | 拿到 KV namespace ID |
-| 8 | 创建 D1 数据库 | 存站点配置、GDPR 记录、统计数据 | 管理员 | Cloudflare 后台 → Workers & Pages → D1 → Create database → 命名 `yiquantea-d1` | 拿到 database ID |
+| 8 | 创建 D1 数据库 | 存站点配置、GDPR 记录、统计数据 | 管理员 | Cloudflare 后台 → Workers & Pages → D1 → Create database → 命名 `yiquantea-analytics` | 拿到 database ID |
 | 9 | （可选）开通 Cloudflare Images | 图片自动压缩和格式转换 | 管理员 | Cloudflare 后台 → Images → 开通 | 开发阶段可不急着开，上线前再开 |
 | 10 | 注册 hCaptcha 账号 | 询价/样品表单的人机验证 | 管理员 | 访问 [hcaptcha.com](https://hcaptcha.com) 注册 | 开发阶段可先占位，上线前激活 |
-| 11 | 配置 Gmail App Password | 发送确认邮件 | 管理员 | Google 账号 → 安全 → 两步验证 → App Passwords | 拿到 16 位应用密码 |
+| 11 | 注册 Resend 邮件服务 | 发送确认邮件 | 管理员 | resend.com 注册 → 验证发件域名 → API Keys | 拿到 RESEND_API_KEY |
 | 12 | 创建 GitHub 仓库 | 存代码 + 自动部署 | 管理员 | github.com 创建私有仓库 `yiquantea-com` | 把代码推上去，Cloudflare Pages 自动部署 |
 | 13 | 连接 GitHub 到 Cloudflare Pages | 自动部署：代码更新了自动上线 | 管理员 | Cloudflare 后台 → Workers & Pages → Create → Pages → Connect Git | 选 GitHub 仓库 → 配置构建命令 |
+
+> 📝 施工中变更：①步骤 8 的 D1 实际创建的库名为 `yiquantea-analytics`（见 wrangler.toml database_name），非原定的 `yiquantea-d1`；②步骤 11 邮件实际改用 Resend API（.env 中 RESEND_API_KEY），未使用原定的 Gmail App Password 方案
 
 ### 4.1 密钥集中管理表（给开发者）
 
@@ -177,7 +183,7 @@
 | `D1_DATABASE_ID` | D1 数据库 ID（仅存分析汇总快照，不存业务配置） | Cloudflare 后台 → D1 → 数据库详情 |
 | `AUTH_SECRET` | JWT 加密密钥 | 随机生成（`openssl rand -base64 32`） |
 | `ADMIN_USERNAME` | 超级管理员账号（手机号） | 公司决定，固定值 |
-| `ADMIN_PASSWORD` | 超级管理员密码 | 公司决定，首次登录强制改密 |
+| `ADMIN_PASSWORD` | 超级管理员密码 | 公司决定，固定值 |
 | `SHOWCASE_PASSWORD_KEY` | B2B 密码加密密钥 | 随机生成 32 位字符串 |
 | `RESEND_API_KEY` | Resend 邮件服务 API 密钥 | Resend 后台（resend.com）→ API Keys |
 | `NEXT_PUBLIC_SITE_URL` | 网站正式地址 | `https://yiquantea.com` |
@@ -186,6 +192,8 @@
 | `BACKUP_RETENTION_DAYS` | 备份保留天数 | 固定值 `7` |
 | `RATE_LIMIT_PUBLIC` | 公开接口限流次数 | 固定值 `60`（每分钟） |
 | `RATE_LIMIT_LOGIN` | 登录限流次数 | 固定值 `5`（每分钟） |
+
+> 📝 施工中变更：「首次登录强制改密」未实现，实际为固定密码登录（上线前人工修改 ADMIN_PASSWORD 即可）；另实际 .env 还包含 RATE_LIMIT_B2B、CF_ACCOUNT_ID、CF_IMAGES_API_TOKEN 等项
 
 ---
 
@@ -211,27 +219,33 @@
     ├── 提交询价 → Workers 先查 KV 限流计数（有没有刷太多次）
     │             → 验证人机验证（hCaptcha）
     │             → 写入 Neon 数据库
-    │             → 发邮件通知（Gmail SMTP）
+    │             → 发邮件通知（Resend API）
     │
     └── GDPR 弹窗 → Workers 读 D1（之前有没有同意过）
                     → 没同意过 + 欧盟 IP → 显示弹窗
                     → 客户点同意 → 写 D1 记录
 ```
 
+> 📝 施工中变更：①邮件实际通过 Resend API 发送（src/lib/email.ts），未使用 Gmail SMTP；②GDPR 同意记录实际存 Neon（gdpr_consents 表），非 D1
+
 ### 5.2 定时任务怎么跑的？
 
 | 任务 | 时机 | 实现方式 |
 |:-----|:-----|:-----|
-| 数据库冷备 | 每天凌晨 3 点（上海时间） | Workers Cron Trigger → 执行备份脚本 → 导出 SQL 存到 R2 |
+| 数据库冷备 | 每天凌晨 3 点（上海时间） | Workers Cron Trigger → 执行备份脚本 → 导出 JSON 存到 R2 |
 | 过期备份清理 | 每次备份后 | 备份脚本内置，删除 7 天前的 R2 文件 |
 | 浏览日志清理 | 每天凌晨 4 点 | Workers Cron Trigger → 删除 90 天前的浏览日志 |
+
+> 📝 施工中变更：①备份格式实际为 JSON（backup-*.json，含 31 张表导出），非 SQL；②Cron 定时任务尚未在 Workers 侧落地（src/worker.ts 未创建，wrangler.toml 的 crons 声明待部署时生效），当前备份由后台「备份管理」手动触发（POST /api/backup）
 
 ### 5.3 请求怎么走的？（一条完整链路）
 
 以"一个匈牙利客户在布达佩斯打开 B2B 产品页"为例：
 
+> 📝 施工中变更：本站六语言为 zh/en/ru/de/es/fr（不含匈牙利语 hu），示例 URL 由 /hu/ 改为 /en/
+
 ```
-1. 客户在浏览器输入 yiquantea.com/hu/b2b
+1. 客户在浏览器输入 yiquantea.com/en/b2b
 2. DNS（Cloudflare DNS）解析 → 指向最近的 Cloudflare 节点（可能在法兰克福或布达佩斯附近）
 3. Cloudflare Pages 返回已缓存的页面（静态部分）
 4. 页面加载时，前端 JS 调 Workers API（/api/showcase/categories）
@@ -293,7 +307,7 @@
        └──── 文件请求 ────────▶ Cloudflare R2（文件仓库）
                                   ├── 产品图片 · 360°展示图
                                   ├── 产品视频 · 缩略图
-                                  ├── 数据库备份文件（.sql）
+                                  ├── 数据库备份文件（.json）
                                   └── 其他上传文件
                                       │
                                       ▼
@@ -305,10 +319,12 @@
 
 ```
 Workers Cron Triggers（定时触发器）
-├── 每天 03:00（上海时间）：数据库冷备 → 导出 SQL → 存 R2 → 清理 7 天前旧备份
+├── 每天 03:00（上海时间）：数据库冷备 → 导出 JSON → 存 R2 → 清理 7 天前旧备份
 ├── 每天 04:00（上海时间）：清理 90 天前浏览日志
 └── 每季度 1 日：IP 地理数据库更新（Cloudflare 自带，无需额外操作）
 ```
+
+> 📝 施工中变更：①备份导出格式实际为 JSON 非 SQL；②Cron 任务尚未在 Workers 侧落地（当前手动备份），上图为目标状态
 
 ---
 
@@ -331,6 +347,11 @@ Workers Cron Triggers（定时触发器）
 | 12 | 开发执行指南 | 分阶段施工指令 | 开发者 |
 | 13 | 后台操作说明书（员工版） | 员工操作完整指南 | 员工 |
 | 14 | 最终补充说明 | 安全/运维/合规方案 | 所有人 |
+| 15 | 云服务账号与密钥管理规范 | 账号/密钥管理 | 所有人 |
+| 16 | 上线前检查清单 | 上线逐项检查表 | 所有人 |
+| 17 | 三套环境划分规范 | 开发/测试/生产环境 | 开发者 |
+
+> 📝 施工中变更：索引补入 15/16/17 号文档（设计后期新增）
 
 ---
 

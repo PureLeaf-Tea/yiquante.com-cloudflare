@@ -341,6 +341,8 @@ POST /api/inquiries
 - chatToken：客户后续聊天的身份凭证（存在 URL 参数中）
 ```
 
+> 📝 施工中变更：hCaptcha 密钥已配置并实际生效（.env 的 NEXT_PUBLIC_HCAPTCHA_SITE_KEY/HCAPTCHA_SECRET_KEY），前台询价/样品表单均已接入 @hcaptcha/react-hcaptcha 组件，字段名与本文档一致（hcaptchaToken）
+
 ### 7.2-7.4 询价列表/详情/状态（需认证）
 返回字段含 priority、assignedTo、source、unreadMessages。
 
@@ -429,8 +431,10 @@ PATCH /api/analytics/view-log/[viewId]
 | 方法 | 路径 | 说明 |
 |:-----|:-----|:-----|
 | GET | `/api/backup` | 获取备份状态 + R2 文件列表 |
-| POST | `/api/backup` | 手动触发备份（导出 SQL 存 R2） |
+| POST | `/api/backup` | 手动触发备份（导出 JSON 存 R2） |
 | GET | `/api/backup/[filename]` | 下载备份文件（文件名白名单防目录穿越） |
+
+> 📝 施工中变更：备份导出格式实际为 JSON（backup-*.json，31 张主要表，users 剔除密码字段），非 SQL；R2 访问为双模（Workers 绑定/S3 兼容 API），凭据未配置时返回演练模式
 
 ---
 
@@ -453,6 +457,8 @@ POST /api/gdpr/consent
 - 同意记录存 D1（不占用主库资源）
 ```
 
+> 📝 施工中变更：GDPR 同意记录实际存 Neon（gdpr_consents 表），非 D1
+
 ---
 
 ## 十二、其余 API（与老版一致，仅列端点）
@@ -469,6 +475,8 @@ POST /api/gdpr/consent
 | 统计 | `GET /api/stats/dashboard` |
 | 评论 | `GET/POST /api/reviews` `PUT/DELETE /api/reviews/[id]` |
 | 搜索关键词 | `GET/POST /api/search-keywords` |
+
+> 📝 施工中变更：实际端点与上表几处不同——①二维码新增真实端点 `GET /api/showcase/[id]/qrcode`（qrcode 包生成 PNG，收尾任务 4），旧 `/api/qrcode` SVG 占位端点保留兼容；②搜索关键词新增 `PUT/DELETE /api/search-keywords/[id]`（阶段 17）；③配置类新增首页模块四组端点 `GET/POST /api/config/hero|selling-points|certifications|cta` 及各自 `[id]` 的 `PUT/DELETE`（阶段 17）；④产品新增 `POST/DELETE /api/products/[id]/images`（阶段 14）；⑤展示区分类产品新增 `PATCH /api/showcase/categories/[id]/products/sort`；⑥上传接口已真实接入 R2（双模，收尾任务 3）
 
 ---
 
@@ -503,6 +511,8 @@ src/app/api/
 ```
 
 > 共 ~55 个路由文件，每个 Worker request handler 需独立处理请求、认证、限流、错误。
+>
+> 📝 施工中变更：实际 API 为 65 个路由文件，且文件组织与本清单不同——①每个端点为独立目录 + route.ts（如 categories/[id]/sort/route.ts），非扁平 .ts 文件；②showcase 下无 products/ 目录，分类产品走 categories/[id]/products（+sort），另新增 [id]/qrcode；③新增 search-keywords/[id]、products/[id]/images、config/hero|selling-points|certifications|cta 等；④staff 与 reviews 无 [id]/status 端点（状态字段经 PUT [id] 更新）；⑤全部路由声明 runtime = 'nodejs'
 
 ---
 
