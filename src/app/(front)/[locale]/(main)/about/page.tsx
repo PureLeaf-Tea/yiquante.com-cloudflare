@@ -1,7 +1,8 @@
 // 关于我们页（/[locale]/about）
 import { getPageContent } from '@/lib/queries';
 
-export default async function AboutPage({ params }: { params: { locale: string } }) {
+export default async function AboutPage({ params: paramsPromise }: { params: Promise<{ locale: string }> }) {
+  const params = await paramsPromise;
   const zh = params.locale === 'zh';
   const content = await getPageContent('about');
 

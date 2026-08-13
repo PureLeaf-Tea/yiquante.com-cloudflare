@@ -35,8 +35,9 @@ async function findCategory(key: string) {
   return undefined;
 }
 
-// GET：B2B 分类产品列表（需有效 token，分页默认 25）
-export async function GET(req: NextRequest, { params }: RouteContext) {
+// GET：B2B 分类产品列表（需有效 token，分页默认 25；E1：Next 15 起 ctx.params 为 Promise）
+export async function GET(req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   const limited = await rateLimitPublic(req, 'read');
   if (limited) return limited;
 

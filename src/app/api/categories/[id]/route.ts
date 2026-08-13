@@ -12,8 +12,9 @@ export const runtime = 'nodejs';
 
 type RouteContext = { params: { id: string } };
 
-// GET：单个分类（公开）
-export async function GET(_req: NextRequest, { params }: RouteContext) {
+// GET：单个分类（公开；E1：Next 15 起 ctx.params 为 Promise）
+export async function GET(_req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   const rows = await db.select().from(categories).where(eq(categories.id, params.id)).limit(1);
   if (!rows[0]) return fail('分类不存在', 404);
   return ok(rows[0]);

@@ -40,9 +40,9 @@ export async function verifyToken(token: string): Promise<AuthUser | null> {
   }
 }
 
-// ★从 Cookie 获取当前登录用户（未登录返回 null）
+// ★从 Cookie 获取当前登录用户（未登录返回 null；E1：Next 15 起 cookies() 为异步）
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get('auth_token')?.value;
   if (!token) return null;
   return verifyToken(token);

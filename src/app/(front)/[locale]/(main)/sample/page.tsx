@@ -2,7 +2,8 @@
 import { getTranslations } from 'next-intl/server';
 import { SampleRequestForm } from '@/components/sample/SampleRequestForm';
 
-export default async function SamplePage({ params }: { params: { locale: string } }) {
+export default async function SamplePage({ params: paramsPromise }: { params: Promise<{ locale: string }> }) {
+  const params = await paramsPromise;
   const t = await getTranslations('sample');
 
   return (

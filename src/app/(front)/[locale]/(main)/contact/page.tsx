@@ -3,7 +3,8 @@
 import { Mail, Phone, MessageCircle, MapPin } from 'lucide-react';
 import { getPageContent, getSiteConfig } from '@/lib/queries';
 
-export default async function ContactPage({ params }: { params: { locale: string } }) {
+export default async function ContactPage({ params: paramsPromise }: { params: Promise<{ locale: string }> }) {
+  const params = await paramsPromise;
   const zh = params.locale === 'zh';
   const content = await getPageContent('contact');
   const site = await getSiteConfig();

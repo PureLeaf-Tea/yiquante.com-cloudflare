@@ -15,8 +15,9 @@ type RouteContext = { params: { key: string } };
 // 允许的页面 key 白名单
 const VALID_KEYS = ['about', 'privacy', 'terms', 'contact', 'certifications'];
 
-// GET：按 key 读取页面内容（公开）
-export async function GET(req: NextRequest, { params }: RouteContext) {
+// GET：按 key 读取页面内容（公开；E1：Next 15 起 ctx.params 为 Promise）
+export async function GET(req: NextRequest, { params: paramsPromise }: { params: Promise<{ key: string }> }) {
+  const params = await paramsPromise;
   const limited = await rateLimitPublic(req, 'read');
   if (limited) return limited;
 

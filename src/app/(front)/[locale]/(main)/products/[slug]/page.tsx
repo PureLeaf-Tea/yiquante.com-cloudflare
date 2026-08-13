@@ -8,10 +8,11 @@ import { getProductBySlug } from '@/lib/queries';
 import { ProductDetailLayout } from '@/components/product/ProductDetailLayout';
 
 export default async function ProductDetailPage({
-  params,
+  params: paramsPromise,
 }: {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }>;
 }) {
+  const params = await paramsPromise;
   const { locale, slug } = params;
   const zh = locale === 'zh';
 

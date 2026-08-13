@@ -3,7 +3,8 @@
 import { BadgeCheck } from 'lucide-react';
 import { getPageContent, getCertificationList } from '@/lib/queries';
 
-export default async function CertificationsPage({ params }: { params: { locale: string } }) {
+export default async function CertificationsPage({ params: paramsPromise }: { params: Promise<{ locale: string }> }) {
+  const params = await paramsPromise;
   const zh = params.locale === 'zh';
   const content = await getPageContent('certifications');
   const certs = await getCertificationList();

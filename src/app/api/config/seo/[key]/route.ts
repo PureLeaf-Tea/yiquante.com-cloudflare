@@ -13,8 +13,9 @@ type RouteContext = { params: { key: string } };
 
 const VALID_KEYS = ['home', 'products', 'b2b', 'about', 'certifications', 'contact', 'sample', 'privacy', 'terms'];
 
-// GET：按页面 key 读取 SEO 设置（公开）
-export async function GET(req: NextRequest, { params }: RouteContext) {
+// GET：按页面 key 读取 SEO 设置（公开；E1：Next 15 起 ctx.params 为 Promise）
+export async function GET(req: NextRequest, { params: paramsPromise }: { params: Promise<{ key: string }> }) {
+  const params = await paramsPromise;
   const limited = await rateLimitPublic(req, 'read');
   if (limited) return limited;
 

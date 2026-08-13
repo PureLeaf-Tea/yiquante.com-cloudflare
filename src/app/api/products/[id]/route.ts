@@ -26,8 +26,9 @@ type RouteContext = { params: { id: string } };
 // uuid 格式判断：[id] 位可能是 uuid 也可能是 slug，不能拿 slug 直接比 uuid 列（PG 会报类型错）
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// GET：产品详情
-export async function GET(req: NextRequest, { params }: RouteContext) {
+// GET：产品详情（E1：Next 15 起 ctx.params 为 Promise）
+export async function GET(req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   const limited = await rateLimitPublic(req, 'read');
   if (limited) return limited;
 

@@ -17,10 +17,11 @@ export const metadata: Metadata = {
 };
 
 export default async function ShowcaseDetailPage({
-  params,
+  params: paramsPromise,
 }: {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }>;
 }) {
+  const params = await paramsPromise;
   const { locale, slug } = params;
   const zh = locale === 'zh';
 

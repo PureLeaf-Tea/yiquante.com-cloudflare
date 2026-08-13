@@ -1,7 +1,8 @@
 // 服务条款页（/[locale]/terms）
 import { getPageContent } from '@/lib/queries';
 
-export default async function TermsPage({ params }: { params: { locale: string } }) {
+export default async function TermsPage({ params: paramsPromise }: { params: Promise<{ locale: string }> }) {
+  const params = await paramsPromise;
   const zh = params.locale === 'zh';
   const content = await getPageContent('terms');
 

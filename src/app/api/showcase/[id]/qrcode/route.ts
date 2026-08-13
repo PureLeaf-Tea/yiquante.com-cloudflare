@@ -9,7 +9,9 @@ import { fail, rateLimitPublic } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+// E1：Next 15 起 ctx.params 为 Promise
+export async function GET(req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   const limited = await rateLimitPublic(req, 'read');
   if (limited) return limited;
 

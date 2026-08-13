@@ -8,7 +8,7 @@
 
 | 层 | 技术 |
 |:---|:-----|
-| 框架 | Next.js 14（App Router）+ TypeScript |
+| 框架 | Next.js 15（App Router）+ TypeScript + React 19 |
 | 多语言 | next-intl（六语言 zh/en/ru/de/es/fr） |
 | 数据库 | Neon Serverless PostgreSQL + Drizzle ORM（33 张表） |
 | 缓存 | Cloudflare KV（限流计数、B2B 24h token） |
@@ -81,8 +81,8 @@ npm run deploy    # opennextjs-cloudflare build && deploy（构建并部署到 C
 ## 7. 已知注意事项
 
 1. **构建前必须停掉 dev/preview 进程**：Windows 下 `next dev`/`opennextjs-cloudflare preview` 与构建并行会锁 `.next`/`.open-next` 目录（EPERM）并可能损坏缓存；遇到 `.next` 相关 MODULE_NOT_FOUND 先删 `.next` 再重建。
-2. **Next.js 14 已 EOL**：OpenNext 构建使用 `--dangerouslyUseUnsupportedNextVersion` 旗标放行（见 package.json preview/deploy 脚本），待安排 Next 15/16 升级批次后移除。
-3. **npm audit 遗留漏洞（2026-08 复查）**：11 个（next/postcss/next-intl/eslint 链，5 moderate + 6 high），修复均需 Next 16 / next-intl 4 破坏性升级，归入 Next 升级批次统一处理；风险面为自托管 Next 服务的 DoS/缓存投毒类通告，本项目 images.unoptimized、无 CSP nonce、无 custom server，多数利用面不适用；生产运行时为 workerd，不运行 Node 版 Next 服务。原 undici/ws 漏洞链（miniflare/wrangler）已随 wrangler 升级 ^4.122.0 消除。
+2. **Next.js 14 → 15 升级已于 E1 批次完成**（next 15.5.23 / React 19 / next-intl 4）：`--dangerouslyUseUnsupportedNextVersion` 旗标已从 preview/deploy 脚本移除；不跳 Next 16 因其与 wrangler.jsonc 部署链存在社区实测不兼容。设计文档中的版本号待文档同步批次更新。
+3. **npm audit 遗留漏洞（2026-08 E1 后复查）**：8 个（4 moderate + 4 high），全部来自 next 15.5.23 内部依赖 sharp <0.35.0 继承的 libvips 漏洞，官方修复路径为 Next 16.3.0（本部署链不兼容，未采纳）；本项目 images.unoptimized=true，sharp 原生图片处理路径运行时不会被触发，实际暴露面为零；生产运行时为 workerd，不运行 Node 版 Next 服务。
 4. **OpenNext Windows 支持为官方声明的 best-effort**：正式 CI/CD 建议 Linux 环境。
 5. **R2 桶公开访问**需在 Cloudflare 控制台开启后上传文件才可公网直访。
 6. 备份当前为后台手动触发（JSON 导出存 R2），自动备份 Cron 待独立 scheduled Worker 实现。

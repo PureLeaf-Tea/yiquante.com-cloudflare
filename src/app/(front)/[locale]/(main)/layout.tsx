@@ -7,13 +7,15 @@ import { GDPRConsentBanner } from '@/components/layout/GDPRConsentBanner';
 import { StorefrontProviders } from '@/components/storefront/StorefrontProviders';
 import { ChatWidget } from '@/components/chat/ChatWidget';
 
-export default function MainLayout({
+// E1：Next 15 起 ctx.params 为 Promise（同步布局转 async）
+export default async function MainLayout({
   children,
-  params: { locale },
+  params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   return (
     <StorefrontProviders locale={locale}>
       <Header locale={locale} />

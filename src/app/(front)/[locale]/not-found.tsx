@@ -2,8 +2,10 @@
 import Link from 'next/link';
 import { Home } from 'lucide-react';
 
-export default function LocaleNotFound({ params }: { params: { locale: string } }) {
-  const zh = params?.locale === 'zh';
+// E1：Next 15 起 ctx.params 为 Promise（同步组件转 async）
+export default async function LocaleNotFound({ params }: { params: Promise<{ locale: string }> }) {
+  const p = await params;
+  const zh = p?.locale === 'zh';
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center">
@@ -15,7 +17,7 @@ export default function LocaleNotFound({ params }: { params: { locale: string } 
         {zh ? '您访问的页面不存在或已被移动。' : 'The page you are looking for does not exist or has been moved.'}
       </p>
       <Link
-        href={`/${params?.locale || 'en'}`}
+        href={`/${p?.locale || 'en'}`}
         className="inline-flex min-h-touch items-center gap-2 rounded-btn bg-brand-green px-6 text-sm font-medium text-white hover:bg-brand-green/90"
       >
         <Home size={15} aria-hidden="true" />

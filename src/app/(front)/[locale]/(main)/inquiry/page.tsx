@@ -1,7 +1,8 @@
 // 询价提交页（/[locale]/inquiry）
 import { InquiryForm } from '@/components/inquiry/InquiryForm';
 
-export default function InquiryPage({ params }: { params: { locale: string } }) {
+export default async function InquiryPage({ params: paramsPromise }: { params: Promise<{ locale: string }> }) {
+  const params = await paramsPromise;
   const zh = params.locale === 'zh';
 
   return (

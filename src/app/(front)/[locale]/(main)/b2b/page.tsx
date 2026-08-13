@@ -5,7 +5,8 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { getShowcaseEntryCategories } from '@/lib/queries';
 
-export default async function B2BEntryPage({ params }: { params: { locale: string } }) {
+export default async function B2BEntryPage({ params: paramsPromise }: { params: Promise<{ locale: string }> }) {
+  const params = await paramsPromise;
   const locale = params.locale;
   const zh = locale === 'zh';
   const t = await getTranslations('b2b');

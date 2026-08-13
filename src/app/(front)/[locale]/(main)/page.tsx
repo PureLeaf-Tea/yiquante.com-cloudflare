@@ -9,7 +9,8 @@ import { ReviewsSection } from '@/components/home/ReviewsSection';
 import { CtaSection } from '@/components/home/CtaSection';
 import { getHeroSlides } from '@/lib/queries';
 
-export default async function LocaleHomePage({ params }: { params: { locale: string } }) {
+export default async function LocaleHomePage({ params: paramsPromise }: { params: Promise<{ locale: string }> }) {
+  const params = await paramsPromise;
   const locale = params.locale;
 
   const heroRows = await getHeroSlides();

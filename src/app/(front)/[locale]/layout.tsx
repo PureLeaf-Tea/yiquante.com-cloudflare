@@ -16,8 +16,9 @@ export const viewport: Viewport = {
 };
 
 // 页面级元数据：基础标题 + hreflang 六语言互指 + x-default + Open Graph（16 号文档 §八）
-export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
-  const locale = params.locale;
+// E1：Next 15 起 ctx.params 为 Promise
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const locale = (await params).locale;
   const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.includes('localhost')
     ? 'https://yiquantea.com'
     : process.env.NEXT_PUBLIC_SITE_URL || 'https://yiquantea.com';
@@ -42,13 +43,15 @@ export async function generateMetadata({ params }: { params: { locale: string } 
   };
 }
 
+// E1：Next 15 起 ctx.params 为 Promise
 export default async function LocaleLayout({
   children,
-  params: { locale },
+  params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   // 语言代码非法直接 404（next-intl 官方推荐写法）
   if (!isValidLocale(locale)) {
     notFound();

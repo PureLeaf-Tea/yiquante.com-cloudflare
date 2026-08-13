@@ -5,12 +5,14 @@ import { Scale } from 'lucide-react';
 import { getProductsByIds } from '@/lib/queries';
 
 export default async function ComparePage({
-  params,
-  searchParams,
+  params: paramsPromise,
+  searchParams: searchParamsPromise,
 }: {
-  params: { locale: string };
-  searchParams: { ids?: string };
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ ids?: string }>;
 }) {
+  const params = await paramsPromise;
+  const searchParams = await searchParamsPromise;
   const locale = params.locale;
   const zh = locale === 'zh';
 

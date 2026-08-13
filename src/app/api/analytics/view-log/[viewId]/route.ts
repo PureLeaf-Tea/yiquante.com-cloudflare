@@ -11,7 +11,9 @@ export const runtime = 'nodejs';
 
 const MAX_DURATION_MS = 24 * 60 * 60 * 1000;
 
-export async function PATCH(req: NextRequest, { params }: { params: { viewId: string } }) {
+// E1：Next 15 起 ctx.params 为 Promise
+export async function PATCH(req: NextRequest, { params: paramsPromise }: { params: Promise<{ viewId: string }> }) {
+  const params = await paramsPromise;
   const limited = await rateLimitPublic(req, 'read');
   if (limited) return limited;
 

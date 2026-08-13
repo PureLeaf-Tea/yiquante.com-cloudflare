@@ -1,7 +1,8 @@
 // 隐私政策页（/[locale]/privacy，含 GDPR 数据权利说明）
 import { getPageContent } from '@/lib/queries';
 
-export default async function PrivacyPage({ params }: { params: { locale: string } }) {
+export default async function PrivacyPage({ params: paramsPromise }: { params: Promise<{ locale: string }> }) {
+  const params = await paramsPromise;
   const zh = params.locale === 'zh';
   const content = await getPageContent('privacy');
 

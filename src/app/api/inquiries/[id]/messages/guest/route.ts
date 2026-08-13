@@ -9,8 +9,9 @@ import { ok, fail, parseBody, rateLimitPublic } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
 
-// GET：客户读取自己询价的聊天记录（?chatToken= 必须等于询价 ID）
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+// GET：客户读取自己询价的聊天记录（?chatToken= 必须等于询价 ID；E1：Next 15 起 ctx.params 为 Promise）
+export async function GET(req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   const limited = await rateLimitPublic(req, 'read');
   if (limited) return limited;
 
@@ -36,7 +37,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return ok(rows);
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+// E1：Next 15 起 ctx.params 为 Promise
+export async function POST(req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   const limited = await rateLimitPublic(req, 'read');
   if (limited) return limited;
 

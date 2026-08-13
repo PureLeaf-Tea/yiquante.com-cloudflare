@@ -7,10 +7,11 @@ import { showcaseCategories } from '@/drizzle/schema';
 import { B2BCategoryProducts } from '@/components/b2b/B2BCategoryProducts';
 
 export default async function B2BCategoryPage({
-  params,
+  params: paramsPromise,
 }: {
-  params: { locale: string; categorySlug: string };
+  params: Promise<{ locale: string; categorySlug: string }>;
 }) {
+  const params = await paramsPromise;
   const rows = await db
     .select()
     .from(showcaseCategories)

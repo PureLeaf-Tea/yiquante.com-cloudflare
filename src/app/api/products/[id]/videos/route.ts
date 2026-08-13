@@ -18,8 +18,9 @@ const PANORAMA_MAX_BYTES = 20 * 1024 * 1024; // 360° ≤20MB
 const VIDEO_TYPES = ['video/mp4', 'video/quicktime'];
 const PANORAMA_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-// GET：视频列表（公开）
-export async function GET(req: NextRequest, { params }: RouteContext) {
+// GET：视频列表（公开；E1：Next 15 起 ctx.params 为 Promise）
+export async function GET(req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   const limited = await rateLimitPublic(req, 'read');
   if (limited) return limited;
 

@@ -13,12 +13,14 @@ import { cn } from '@/lib/cn';
 const PAGE_SIZE = 25; // 02 号文档 §9.7：默认 25 条/页
 
 export default async function ProductsPage({
-  params,
-  searchParams,
+  params: paramsPromise,
+  searchParams: searchParamsPromise,
 }: {
-  params: { locale: string };
-  searchParams: { cat?: string; search?: string; page?: string };
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ cat?: string; search?: string; page?: string }>;
 }) {
+  const params = await paramsPromise;
+  const searchParams = await searchParamsPromise;
   const locale = params.locale;
   const zh = locale === 'zh';
   const t = await getTranslations('nav');

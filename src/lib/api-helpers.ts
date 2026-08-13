@@ -40,6 +40,8 @@ export function isFail(result: AuthResult): result is NextResponse {
 // 用法：export const POST = withAuth(async (req, ctx, auth) => {...}, ['admin']);
 // 参数顺序保持 Next.js 风格 (req, ctx) 在前，auth 第三位；不需要 auth 的 handler 可省略后续参数
 // roles 缺省 = 任意已登录用户；鉴权失败直接返回 401/403（与原手写逻辑一致）
+// E1：Next 15 起路由 ctx.params 为 Promise——外层包装器统一 await 后把已解析的
+// ctx 传给内层 handler，全部已迁移路由内部代码零改动
 export function withAuth<C extends { params: Record<string, string> } = { params: Record<string, string> }>(
   handler: (
     req: NextRequest,
@@ -47,11 +49,12 @@ export function withAuth<C extends { params: Record<string, string> } = { params
     auth: AuthUser
   ) => Promise<Response>,
   roles?: string[]
-): (req: NextRequest, ctx: C) => Promise<Response> {
+): (req: NextRequest, ctx: { params: Promise<C['params']> }) => Promise<Response> {
   return async (req, ctx) => {
     const auth = await requireUser(roles);
     if (isFail(auth)) return auth;
-    return handler(req, ctx, auth);
+    const params = await ctx.params;
+    return handler(req, { ...ctx, params } as C, auth);
   };
 }
 
