@@ -15,7 +15,8 @@ const IMAGE_MAX_BYTES = 10 * 1024 * 1024;
 
 // POST：追加图片
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  const auth = await requireUser(['admin', 'sales']);
+  // M2 修复：'sales' 不在 userRoleEnum（admin/editor/customer_service）中恒不命中，改为 editor（与「编辑可管理内容」设计一致）
+  const auth = await requireUser(['admin', 'editor']);
   if (isFail(auth)) return auth;
 
   const productRows = await db.select().from(products).where(eq(products.id, params.id)).limit(1);

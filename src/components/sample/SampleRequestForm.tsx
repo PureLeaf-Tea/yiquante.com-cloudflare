@@ -37,6 +37,19 @@ export function SampleRequestForm({ locale }: { locale: string }) {
   const [success, setSuccess] = useState(false);
   // hCaptcha 验证 token（未通过时提交按钮置灰）
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  // ★M5 修复：WhatsApp 联系号改读 site_config（后台可改），配置为空时回退原硬编码兜底值
+  const [whatsapp, setWhatsapp] = useState('+86 13333827003');
+
+  useEffect(() => {
+    fetch('/api/config/site')
+      .then((r) => r.json() as Promise<{ success?: boolean; data?: { whatsapp?: string } }>)
+      .then((d) => {
+        if (d.success && d.data?.whatsapp) setWhatsapp(d.data.whatsapp);
+      })
+      .catch(() => {
+        // 拉取失败保持兜底值
+      });
+  }, []);
 
   // 拉产品列表供选择（一次拉全，种子数据量小）
   useEffect(() => {
@@ -163,13 +176,13 @@ export function SampleRequestForm({ locale }: { locale: string }) {
           {zh ? '我们会在 24 小时内回复' : 'We reply within 24 hours'}
         </p>
         <a
-          href="https://wa.me/8613333827003"
+          href={`https://wa.me/${whatsapp.replace(/\D/g, '')}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 text-brand-green hover:text-brand-gold"
         >
           <MessageCircle size={16} className="shrink-0 text-brand-gold" aria-hidden="true" />
-          WhatsApp: +86 13333827003
+          WhatsApp: {whatsapp}
         </a>
       </div>
     </div>

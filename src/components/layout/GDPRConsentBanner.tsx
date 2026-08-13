@@ -9,6 +9,20 @@ import { Cookie } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 const GDPR_COOKIE = 'GDPR_CONSENT';
+const GDPR_SESSION_KEY = 'GDPR_SESSION_ID';
+
+// 匿名会话标识（M1 修复：consent 接口要求 sessionId，用 localStorage 持久化的随机 UUID，不采集个人信息）
+function getOrCreateSessionId(): string {
+  try {
+    const existing = localStorage.getItem(GDPR_SESSION_KEY);
+    if (existing) return existing;
+    const id = crypto.randomUUID();
+    localStorage.setItem(GDPR_SESSION_KEY, id);
+    return id;
+  } catch {
+    return 'anonymous';
+  }
+}
 
 export function GDPRConsentBanner() {
   const [visible, setVisible] = useState(false);
@@ -25,7 +39,17 @@ export function GDPRConsentBanner() {
   const handleConsent = (choice: 'all' | 'necessary') => {
     document.cookie = `${GDPR_COOKIE}=${choice}; path=/; max-age=${60 * 60 * 24 * 365}`;
     setVisible(false);
-    // TODO 阶段 8：同步写入 Neon gdpr_consents 表（POST /api/gdpr/consent）
+    // ★M1 修复：同步写入 Neon gdpr_consents 表（POST /api/gdpr/consent）
+    // 防重复策略：仅在用户点击时上报（横幅凭 GDPR_CONSENT cookie 只弹一次，不会每次加载重复调用）；
+    // 失败不阻断浏览（合规记录尽力而为，本地 cookie 已保证用户体验）
+    const consent = choice === 'all' ? ['necessary', 'analytics', 'marketing'] : ['necessary'];
+    fetch('/api/gdpr/consent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: getOrCreateSessionId(), consent }),
+    }).catch((err) => {
+      console.error('[GDPR] 同意记录上报失败（不影响浏览）', err);
+    });
   };
 
   if (!visible) return null;

@@ -65,8 +65,23 @@ export async function hashPassword(password: string): Promise<string> {
   return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+// ★恒定时间比较两个十六进制哈希串（M3 修复：消除字符串 === 的理论计时侧信道）
+// 实现依据：长度不同直接判 false（SHA-256 hex 恒为 64 位，长度属公开信息，不泄漏秘密）；
+// 长度相同时逐字节 XOR 后按位或累加，循环无提前退出分支，比较耗时与内容无关
+function timingSafeEqualHex(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i += 2) {
+    const byteA = parseInt(a.slice(i, i + 2), 16);
+    const byteB = parseInt(b.slice(i, i + 2), 16);
+    // NaN（非法 hex）参与 XOR 会变 0，先标记非法字符
+    diff |= (byteA ^ byteB) | (Number.isNaN(byteA) || Number.isNaN(byteB) ? 1 : 0);
+  }
+  return diff === 0;
+}
+
 // ★校验密码（登录时调用）
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   const hashedInput = await hashPassword(password);
-  return hashedInput === hash;
+  return timingSafeEqualHex(hashedInput, hash);
 }
