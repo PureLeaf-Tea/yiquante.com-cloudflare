@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>懿泉茶业 · 订单系统员工操作说明（图文版）</title>
+<style>
+  :root {
+    --green: #1a3a1a;
+    --gold: #c9aa7b;
+    --cream: #fdfbf7;
+    --ink: #2d2d2d;
+    --gray: #6b7280;
+    --line: #e8e2d6;
+    --blue: #2563eb;
+    --red: #dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+    background: var(--cream); color: var(--ink); line-height: 1.8;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  /* ===== 封面 ===== */
+  .cover {
+    background: linear-gradient(135deg, var(--green), #2d5a2d);
+    color: #fff; border-radius: 18px; padding: 48px 36px; margin-bottom: 32px;
+    text-align: center;
+  }
+  .cover .leaf { font-size: 42px; }
+  .cover h1 { font-size: 28px; margin: 12px 0 8px; letter-spacing: 2px; }
+  .cover p { color: #d9cbb0; font-size: 15px; }
+  .cover .badge {
+    display: inline-block; margin-top: 16px; background: var(--gold); color: var(--green);
+    font-weight: 700; border-radius: 999px; padding: 6px 18px; font-size: 14px;
+  }
+
+  /* ===== 通用卡片 ===== */
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    padding: 28px 30px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  h2 {
+    font-size: 21px; color: var(--green); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  h2 .ico {
+    width: 34px; height: 34px; border-radius: 9px; background: var(--green); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 17px; flex: none;
+  }
+  h3 { font-size: 16px; margin: 20px 0 8px; color: var(--green); }
+  p { margin-bottom: 10px; }
+  .muted { color: var(--gray); font-size: 14px; }
+
+  /* ===== 步骤 ===== */
+  .step {
+    display: flex; gap: 14px; margin: 18px 0; padding: 16px 18px;
+    background: #fbf9f4; border: 1px solid var(--line); border-radius: 12px;
+  }
+  .step .num {
+    flex: none; width: 40px; height: 40px; border-radius: 50%;
+    background: var(--gold); color: var(--green); font-weight: 800; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step .body { flex: 1; }
+  .step .body b.title { font-size: 16px; color: var(--green); }
+  .step .body p { margin: 4px 0 0; font-size: 14.5px; }
+
+  .click { color: var(--blue); font-weight: 700; }
+  .key {
+    display: inline-block; background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3;
+    border-radius: 6px; padding: 0 8px; font-size: 13px; font-weight: 600;
+  }
+
+  /* ===== 截图 ===== */
+  figure { margin: 16px 0; text-align: center; }
+  figure img {
+    max-width: 100%; border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.08);
+  }
+  figcaption { font-size: 13px; color: var(--gray); margin-top: 8px; }
+
+  /* ===== 提示框 ===== */
+  .tip, .warn, .info {
+    border-radius: 10px; padding: 12px 16px; margin: 14px 0; font-size: 14.5px;
+  }
+  .tip  { background: #f0f7f0; border-left: 4px solid var(--green); }
+  .warn { background: #fef3f2; border-left: 4px solid var(--red); }
+  .info { background: #fffbeb; border-left: 4px solid var(--gold); }
+
+  /* ===== 表格 ===== */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; }
+  th { background: #f5f1e8; color: var(--green); }
+
+  /* ===== 目录 ===== */
+  .toc { columns: 2; column-gap: 32px; font-size: 14.5px; }
+  .toc a { color: var(--green); text-decoration: none; display: block; padding: 4px 0; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* ===== 流程条 ===== */
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
+  .flow .f {
+    background: var(--green); color: #fff; border-radius: 8px; padding: 6px 14px; font-size: 13.5px;
+  }
+  .flow .arrow { color: var(--gold); font-weight: 800; }
+
+  @media print {
+    body { background: #fff; }
+    .card { box-shadow: none; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= 封面 ================= -->
+  <div class="cover">
+    <div class="leaf">🍃</div>
+    <h1>订单系统 · 员工操作说明</h1>
+    <p>懿泉茶业 YiQuanTea.com ｜ 图文版 ｜ 零基础也能学会</p>
+    <div class="badge">看完就会：建订单 → 发链接给客户</div>
+  </div>
+
+  <!-- ================= 这是什么 ================= -->
+  <div class="card">
+    <h2><span class="ico">📖</span>这套系统是干什么的？</h2>
+    <p>一句话说：<b>你在后台给客户建一张"订单"，把订单链接（或二维码）通过微信发给客户，客户点开就能看到自己买了什么茶、有什么赠品。</b></p>
+    <div class="flow">
+      <span class="f">① 后台建订单</span><span class="arrow">→</span>
+      <span class="f">② 复制链接/二维码</span><span class="arrow">→</span>
+      <span class="f">③ 微信发给客户</span><span class="arrow">→</span>
+      <span class="f">④ 客户点开看订单</span>
+    </div>
+    <p class="muted">客户不需要下载任何东西，也不用登录，点开链接就能看。订单页支持中文、英文、俄语、德语、西语、法语六种语言，手机上打开也好看。</p>
+  </div>
+
+  <!-- ================= 目录 ================= -->
+  <div class="card">
+    <h2><span class="ico">🗂️</span>目录</h2>
+    <div class="toc">
+      <a href="#s1">第 1 步：登录后台</a>
+      <a href="#s2">第 2 步：给客户建档（客户名单）</a>
+      <a href="#s3">第 3 步：新建订单（最常用）</a>
+      <a href="#s4">第 4 步：把订单发给客户（链接/二维码）</a>
+      <a href="#s5">第 5 步：发货后改状态</a>
+      <a href="#s6">日常操作：改单、删单、找订单</a>
+      <a href="#faq">常见问题（FAQ）</a>
+      <a href="#appendix">附录：语言与主题对照表</a>
+    </div>
+  </div>
+
+  <!-- ================= 第 1 步 登录 ================= -->
+  <div class="card" id="s1">
+    <h2><span class="ico">1</span>第 1 步：登录后台</h2>
+
+    <div class="step">
+      <div class="num">1</div>
+      <div class="body">
+        <b class="title">打开浏览器，输入后台地址</b>
+        <p>在浏览器地址栏输入：<span class="key">yiquantea.com/admin</span> 然后按回车。看到下面这个绿色叶子图标的登录页就对了。</p>
+      </div>
+    </div>
+
+    <figure>
+      <img src="images/guide-login.png" alt="后台登录页">
+      <figcaption>▲ 登录页长这样：输入手机号和密码，点「登录」</figcaption>
+    </figure>
+
+    <div class="step">
+      <div class="num">2</div>
+      <div class="body">
+        <b class="title">输入手机号和密码，点这里 <span class="click">「登录」</span></b>
+        <p>账号和密码由管理员发给你（每人一个）。<b>密码不要告诉别人。</b></p>
+      </div>
+    </div>
+
+    <div class="warn">⚠️ <b>注意：</b>密码连续输错 <b>5 次</b>，账号会被锁定 <b>15 分钟</b>。锁了别慌，等 15 分钟再试，或找管理员。</div>
+    <div class="tip">💡 <b>小提示：</b>登录后 1 小时没操作会自动退出，重新登录一次就行，这是正常的安全保护。</div>
+  </div>
+
+  <!-- ================= 第 2 步 客户名单 ================= -->
+  <div class="card" id="s2">
+    <h2><span class="ico">2</span>第 2 步：给客户建档（客户名单）</h2>
+    <p class="muted">建订单前先建客户。建过一次的客户，下次直接选就行，不用重复填。</p>
+
+    <div class="step">
+      <div class="num">1</div>
+      <div class="body">
+        <b class="title">点左边菜单的 <span class="click">「客户名单」</span></b>
+        <p>就是侧边栏里带"人像"图标的那一项，在「订单管理」下面。</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">2</div>
+      <div class="body">
+        <b class="title">点右上角 <span class="click">「新增客户」</span>，填三样东西</b>
+        <p><b>姓名</b>（必填，客户叫什么就填什么，外文名也行）；<b>国家</b>（选填，如 Colombia）；<b>默认语言</b>（重要！客户看订单用什么语言就选什么，比如俄罗斯客户选 Русский）。</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">3</div>
+      <div class="body">
+        <b class="title">点 <span class="click">「保存」</span>，完成</b>
+        <p>以后建这个客户的订单时，选他的名字，<b>语言会自动带出来</b>，不用每次再选。</p>
+      </div>
+    </div>
+
+    <figure>
+      <img src="images/guide-customers.png" alt="客户名单页面">
+      <figcaption>▲ 客户名单页：能看到所有客户的姓名、国家、默认语言</figcaption>
+    </figure>
+  </div>
+
+  <!-- ================= 第 3 步 新建订单 ================= -->
+  <div class="card" id="s3">
+    <h2><span class="ico">3</span>第 3 步：新建订单（最常用，重点看这里）</h2>
+
+    <div class="step">
+      <div class="num">1</div>
+      <div class="body">
+        <b class="title">点左边菜单 <span class="click">「订单管理」</span>，再点右上角 <span class="click">「新建订单」</span></b>
+        <p>会弹出一个大窗口，跟着下面一步步填。</p>
+      </div>
+    </div>
+
+    <figure>
+      <img src="images/guide-orders-wall.png" alt="订单管理卡片墙">
+      <figcaption>▲ 订单管理页（卡片墙）：每张卡片就是一个订单，右上角是「新建订单」按钮</figcaption>
+    </figure>
+
+    <div class="step">
+      <div class="num">2</div>
+      <div class="body">
+        <b class="title">选客户</b>
+        <p>在「客户」下拉框里点客户的名字。<b>选完语言会自动跟着变</b>（比如选了俄罗斯客户，语言自动变俄语），想改也可以手动改。</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">3</div>
+      <div class="body">
+        <b class="title">订单号、日期：不用管，系统自动填</b>
+        <p>订单号留空就行，系统会自动生成（格式像 <span class="key">YQ-20260830-JC-01</span>）。日期默认今天，要改就点日期框选。</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">4</div>
+      <div class="body">
+        <b class="title">添加客户买的商品：点「您购买的商品」旁边的 <span class="click">「从图库添加」</span></b>
+        <p>弹出商品图库 → 可以按分类筛选、按名字搜索 → <b>看到要的商品，点它一下就加进订单了</b>。加完点「完成」或直接关窗口。</p>
+      </div>
+    </div>
+
+    <figure>
+      <img src="images/guide-product-picker.png" alt="商品图库选择器">
+      <figcaption>▲ 商品图库：点一下商品卡片就添加到订单，已添加的会有标记</figcaption>
+    </figure>
+
+    <div class="step">
+      <div class="num">5</div>
+      <div class="body">
+        <b class="title">有赠品？点「您的赠品」旁边的 <span class="click">「从图库添加」</span></b>
+        <p>一样的操作。赠品（比如紫砂雕塑、包装罐）虽然不在官网展示，但这里照样能选到。</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">6</div>
+      <div class="body">
+        <b class="title">填数量</b>
+        <p>每件商品右边有个数字框，默认是 1，买几件就改成几。不要的商品点右边的 🗑 垃圾桶图标删掉。</p>
+      </div>
+    </div>
+
+    <figure>
+      <img src="images/guide-new-order-modal.png" alt="新建订单窗口">
+      <figcaption>▲ 新建订单窗口：客户、语言、主题、商品、赠品、祝福语都在这里填</figcaption>
+    </figure>
+
+    <div class="step">
+      <div class="num">7</div>
+      <div class="body">
+        <b class="title">选主题（订单页的配色，一般不用改）</b>
+        <p>默认「主站品牌色」（深绿+暖金）就很好看；想换复古风可以选「深咖暖色」。每个订单可以不一样。</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">8</div>
+      <div class="body">
+        <b class="title">祝福语：已经帮你写好了，想改就改</b>
+        <p>外文和中文各一条，默认是"感谢您的信任，愿这杯茶带去我们最诚挚的祝福。"不改也行。</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">9</div>
+      <div class="body">
+        <b class="title">点右下角 <span class="click">「创建订单」</span>，搞定！</b>
+        <p>看到绿色提示"订单已创建：YQ-xxxx"就成功了，订单链接立刻生效。</p>
+      </div>
+    </div>
+
+    <div class="tip">💡 <b>记住顺序：</b>选客户 → 加商品 → 加赠品 → 填数量 → 点「创建订单」。其他都有默认值，不用管。</div>
+  </div>
+
+  <!-- ================= 第 4 步 发给客户 ================= -->
+  <div class="card" id="s4">
+    <h2><span class="ico">4</span>第 4 步：把订单发给客户（两种方式）</h2>
+
+    <h3>方式 A：复制链接，微信直接发（最常用）</h3>
+    <div class="step">
+      <div class="num">1</div>
+      <div class="body">
+        <b class="title">在订单卡片上点 <span class="click">二维码图标</span>（小方块那个）</b>
+        <p>每张订单卡片右下角有三个小图标：✏️ 编辑、▦ 二维码、🗑 删除。点中间那个。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div class="body">
+        <b class="title">点 <span class="click">「复制链接」</span></b>
+        <p>看到提示"链接已复制"，打开微信 → 找到客户聊天窗口 → 粘贴 → 发送。客户点开就能看。</p>
+      </div>
+    </div>
+
+    <h3>方式 B：发二维码图片（客户扫码看）</h3>
+    <div class="step">
+      <div class="num">1</div>
+      <div class="body">
+        <b class="title">同样点二维码图标，弹出二维码窗口</b>
+        <p>白底绿码，留白充足。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div class="body">
+        <b class="title">截图保存，微信发给客户</b>
+        <p>电脑上按 <span class="key">Win + Shift + S</span>（苹果电脑按 <span class="key">Command + Shift + 4</span>）框选二维码截图，粘贴到微信发送。客户用微信扫一扫即可。</p>
+      </div>
+    </div>
+
+    <figure>
+      <img src="images/guide-qr-modal.png" alt="订单二维码窗口">
+      <figcaption>▲ 二维码窗口：左边可「复制链接」，右边可「新窗口打开订单页」自己先看看</figcaption>
+    </figure>
+
+    <div class="tip">💡 <b>发之前自己先看一眼：</b>点二维码窗口里的「新窗口打开订单页」，或者直接点订单卡片本身，就能看到客户将看到的页面，确认没错再发。</div>
+  </div>
+
+  <!-- ================= 客户看到的页面 ================= -->
+  <div class="card">
+    <h2><span class="ico">👀</span>客户打开链接会看到什么？</h2>
+    <p>下面就是客户手机/电脑上看到的真实效果（俄语订单 + 默认主题）：</p>
+    <figure>
+      <img src="images/guide-order-page-ru.png" alt="客户订单页（俄语）">
+      <figcaption>▲ 俄语订单页：品牌、状态、客户信息、购买的商品、赠品、祝福语，一样不少</figcaption>
+    </figure>
+    <p>换成中文订单 + 深咖主题是这样的：</p>
+    <figure>
+      <img src="images/guide-order-page-zh-classic.png" alt="客户订单页（中文深咖主题）">
+      <figcaption>▲ 中文订单页（深咖暖色主题）</figcaption>
+    </figure>
+    <p class="muted">客户点订单里的任何一件商品，会跳到商品详情页看大图和介绍（从订单进去的页面默认不显示价格和询价按钮，干净清爽）。</p>
+  </div>
+
+  <!-- ================= 第 5 步 发货状态 ================= -->
+  <div class="card" id="s5">
+    <h2><span class="ico">5</span>第 5 步：发货后改状态</h2>
+    <div class="step">
+      <div class="num">1</div>
+      <div class="body">
+        <b class="title">货发出去后，找到这张订单卡片，点左下角 <span class="click">「标记已发货」</span></b>
+        <p>一下就好。订单状态立刻从"待发货"变成"已发货"，客户那边打开链接也能同步看到新状态。</p>
+      </div>
+    </div>
+    <div class="tip">💡 点一下状态徽标（"待发货"/"已发货"小标签）也能来回切换。</div>
+  </div>
+
+  <!-- ================= 日常操作 ================= -->
+  <div class="card" id="s6">
+    <h2><span class="ico">🧰</span>日常操作：改单、删单、找订单</h2>
+
+    <h3>✏️ 修改订单</h3>
+    <p>点订单卡片上的 ✏️ 铅笔图标 → 改完点「保存修改」。加商品、改数量、换语言、换主题都行。</p>
+
+    <h3>🗑 删除订单</h3>
+    <p>点 🗑 垃圾桶图标 → 弹出确认框 → 点「确认删除」。<b>删了就没了，想清楚再删。</b></p>
+
+    <h3>🔍 找订单</h3>
+    <p>订单多了用顶部工具：<b>搜索框</b>输客户名字或订单号；<b>状态下拉</b>可以只看"待发货"或"已发货"。右上角还能切换卡片/列表两种看法。</p>
+
+    <h3>📦 加新商品到图库</h3>
+    <p>以后有新茶要卖：找管理员在「产品管理」里加商品、传图片。加好后，建订单时「从图库添加」里立刻就能选到，<b>不用改任何代码</b>。</p>
+  </div>
+
+  <!-- ================= FAQ ================= -->
+  <div class="card" id="faq">
+    <h2><span class="ico">❓</span>常见问题（FAQ）</h2>
+
+    <h3>Q1：客户说链接打不开？</h3>
+    <p>先自己点一下试试。如果你能打开、客户打不开，多半是客户网络问题；如果链接被截断了（微信里复制不完整），重新复制一次完整的发过去。链接格式是 <span class="key">https://yiquantea.com/o/订单号</span>。</p>
+
+    <h3>Q2：客户想换语言看订单？</h3>
+    <p>不用重建订单：编辑订单 → 改「订单语言」→ 保存。客户刷新页面就是新语言。</p>
+
+    <h3>Q3：订单发出去之后还能改吗？</h3>
+    <p>能。改了保存后，客户那边刷新就能看到最新内容（商品、数量、状态都是实时的）。</p>
+
+    <h3>Q4：客户被我删了，订单还在吗？</h3>
+    <p>在。订单保留，只是订单页上客户名字的位置显示"客户已删除"。所以删客户前看一眼他有没有订单。</p>
+
+    <h3>Q5：商品被删了，老订单会怎样？</h3>
+    <p>老订单保留，那件商品会显示"商品已下架"占位，不影响其他商品。所以删商品要谨慎。</p>
+
+    <h3>Q6：为什么官网首页看不到我们卖的有些茶（比如包装罐、紫砂佛）？</h3>
+    <p>这是故意的。这类商品设置了"不在官网前台显示"，只用于订单里。客户在官网看不到，但你建订单时照样能选。</p>
+
+    <h3>Q7：密码忘了 / 账号被锁了？</h3>
+    <p>锁定等 15 分钟自动解开。密码忘了找管理员，在「员工管理」里给你重置一个新密码（至少 8 位）。</p>
+
+    <h3>Q8：订单页会被百度/谷歌搜到吗？客户隐私安全吗？</h3>
+    <p>不会。订单页设置了"禁止搜索引擎收录"，只有拿到链接的人才能看。</p>
+  </div>
+
+  <!-- ================= 附录 ================= -->
+  <div class="card" id="appendix">
+    <h2><span class="ico">📎</span>附录：对照表</h2>
+
+    <h3>六种订单语言</h3>
+    <table>
+      <tr><th>下拉框里显示的</th><th>是什么语言</th><th>适合哪国客户</th></tr>
+      <tr><td>中文（zh）</td><td>中文</td><td>中国、新加坡等</td></tr>
+      <tr><td>English（en）</td><td>英语</td><td>美国、英国等，默认语言</td></tr>
+      <tr><td>Русский（ru）</td><td>俄语</td><td>俄罗斯、中亚</td></tr>
+      <tr><td>Deutsch（de）</td><td>德语</td><td>德国、奥地利</td></tr>
+      <tr><td>Español（es）</td><td>西班牙语</td><td>西班牙、哥伦比亚等拉美国家</td></tr>
+      <tr><td>Français（fr）</td><td>法语</td><td>法国、西非法语区</td></tr>
+    </table>
+
+    <h3>两种订单主题</h3>
+    <table>
+      <tr><th>主题名</th><th>颜色</th><th>什么时候用</th></tr>
+      <tr><td>主站品牌色（默认）</td><td>深绿 + 暖金 + 奶油白</td><td>绝大多数订单，和官网一个风格</td></tr>
+      <tr><td>深咖暖色</td><td>深咖 + 金 + 米白</td><td>想要复古、暖色调感觉时</td></tr>
+    </table>
+
+    <h3>订单状态</h3>
+    <table>
+      <tr><th>状态</th><th>意思</th><th>客户页面显示</th></tr>
+      <tr><td>待发货</td><td>货还没发</td><td>金色徽标"待发货"</td></tr>
+      <tr><td>已发货</td><td>货已发出</td><td>绿色徽标"已发货"</td></tr>
+    </table>
+  </div>
+
+  <!-- ================= 结尾 ================= -->
+  <div class="card" style="text-align:center; background: linear-gradient(135deg,#fbf9f4,#f5f1e8);">
+    <p style="font-size:16px; color: var(--green); font-weight: 700;">🎉 看到这里你就全会了！</p>
+    <p class="muted">核心就四步：<b>建客户 → 建订单 → 复制链接 → 微信发给客户</b>。<br>遇到问题先看 FAQ，还不行就找管理员。</p>
+    <p class="muted" style="margin-top:12px;">懿泉茶业 · 订单管理系统 ｜ 员工操作说明 v1.0</p>
+  </div>
+
+</div>
+</body>
+</html>
