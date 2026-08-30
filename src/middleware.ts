@@ -15,7 +15,9 @@ export default createMiddleware({
   localePrefix: 'always', // 所有语言统一带前缀（/zh /en /ru ...），切换逻辑简单一致
 });
 
-// 匹配范围：全站，但排除 api / admin / 静态资源（后台与接口不带语言前缀）
+// 匹配范围：全站，但排除 api / admin / o / 静态资源（后台、接口与客户订单页不带语言前缀）
+// /o/[orderNo] 是订单模块公开页（订单模块第 3 期）：不走 [locale]，语言由订单 lang 字段决定，
+// 必须在此放行，否则会被 next-intl 重定向到 /en/o/...
 export const config = {
-  matcher: ['/((?!api|admin|_next|_vercel|.*\\..*).*)'],
+  matcher: ['/((?!api|admin|o(?:/|$)|_next|_vercel|.*\\..*).*)'],
 };

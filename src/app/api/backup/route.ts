@@ -14,15 +14,31 @@ import {
 } from '@/drizzle/schema';
 import { ok, fail, logOperation, withAuth } from '@/lib/api-helpers';
 import { uploadFile, listFiles, isR2Configured } from '@/lib/r2';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 export const runtime = 'nodejs';
 
 const BACKUP_PREFIX = 'backups/';
+// 2026-08-14 根治：备份专用私有桶（不公开）。绑定模式由 YIQUANTEA_R2_BACKUPS 决定，S3 模式用此名。
+const BACKUPS_BUCKET = process.env.R2_BACKUPS_BUCKET_NAME || 'yiquantea-backups';
+
+// 生产 Workers：取私有备份桶绑定；本地 dev：无绑定返回 undefined（回退 S3 模式）
+function getBackupsR2(): R2Bucket | undefined {
+  try {
+    const { env } = getCloudflareContext();
+    const bound = (env as { YIQUANTEA_R2_BACKUPS?: R2Bucket }).YIQUANTEA_R2_BACKUPS;
+    if (bound) return bound;
+  } catch {
+    // 非 Workers 运行时（本地 dev）：回退 S3
+  }
+  return undefined;
+}
 
 // GET：备份状态（07 §3.7）
 export const GET = withAuth(async () => {
 
-  const r2Configured = isR2Configured();
+  const backupsR2 = getBackupsR2();
+  const r2Configured = !!backupsR2 || isR2Configured();
 
   // 数据规模参考（行数统计）
   const counts = await db.execute(sql`
@@ -33,11 +49,11 @@ export const GET = withAuth(async () => {
   `);
   const rows = (counts as unknown as { rows: Array<Record<string, number>> }).rows;
 
-  // R2 备份文件列表（凭据未配置时为空）
+  // R2 备份文件列表（来自私有备份桶；凭据/绑定都不可用时为空）
   let backups: Array<{ filename: string; size: number; uploadedAt: Date | null }> = [];
   if (r2Configured) {
     try {
-      const files = await listFiles(BACKUP_PREFIX);
+      const files = await listFiles(BACKUP_PREFIX, backupsR2, BACKUPS_BUCKET);
       backups = files
         .filter((f) => f.key.endsWith('.json'))
         .map((f) => ({ filename: f.key.slice(BACKUP_PREFIX.length), size: f.size, uploadedAt: f.uploadedAt }))
@@ -61,10 +77,12 @@ export const GET = withAuth(async () => {
   });
 }, ['admin']);
 
-// POST：手动触发备份（导出主要表 → JSON → 上传 R2）
+// POST：手动触发备份（导出主要表 → JSON → 上传 R2 私有备份桶）
 export const POST = withAuth(async (_req: NextRequest, _ctx: { params: Record<string, string> }, auth: AuthUser) => {
 
-  if (!isR2Configured()) {
+  const backupsR2 = getBackupsR2();
+
+  if (!backupsR2 && !isR2Configured()) {
     // 凭据未配置：明确告知演练模式（保持向后兼容）
     await logOperation(auth, 'backup', 'database', undefined, 'dev-mock（R2 未配置）');
     return ok({ success: true, mock: true, message: '演练模式：R2 凭据未配置，备份逻辑已演练，未产生文件' });
@@ -155,7 +173,9 @@ export const POST = withAuth(async (_req: NextRequest, _ctx: { params: Record<st
     await uploadFile(
       `${BACKUP_PREFIX}${filename}`,
       new TextEncoder().encode(json).buffer as ArrayBuffer,
-      'application/json'
+      'application/json',
+      backupsR2,
+      BACKUPS_BUCKET
     );
   } catch {
     return fail('备份上传 R2 失败，请检查凭据与网络', 500);

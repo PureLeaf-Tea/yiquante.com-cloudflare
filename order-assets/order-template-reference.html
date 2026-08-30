@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>您的订单 · Your Order — YiQuanTea 懿泉茶业</title>
+  <!--
+    ============================================================
+    懿泉茶业 · 客户订单确认页模板 v1
+    用途：随包裹放二维码卡片，客户扫码在手机上看自己的订单
+    （买了什么 + 送了哪些赠品）
+    ============================================================
+    使用方法（每个客户做一页）：
+      1. 复制本文件，重命名（如 juan.html / bence.html）
+      2. 修改下方 <script> 里的 ORDER 数据（客户名/订单号/日期/
+         购买清单/赠品清单/祝福语）
+      3. 上传到 Cloudflare Pages，访问 order.yiquantea.com/文件名
+    ============================================================
+  -->
+  <style>
+    /* ===== 暖色国风 · 移动端优先 ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+                   "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: #FBF7F0;
+      color: #4A2C2A;
+      line-height: 1.6;
+      padding: 16px;
+    }
+
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e8dcc8;
+      overflow: hidden;
+    }
+
+    /* 顶部 */
+    .header {
+      background: #4A2C2A;
+      color: #fff;
+      padding: 24px 20px;
+      text-align: center;
+    }
+    .header .brand { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+    .header .brand-en { font-size: 12px; color: #d4c4a8; margin-top: 2px; }
+    .header .status {
+      display: inline-block;
+      margin-top: 12px;
+      background: #B8860B;
+      color: #fff;
+      font-size: 13px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    /* 客户信息 */
+    .customer {
+      padding: 20px;
+      border-bottom: 1px solid #e8dcc8;
+    }
+    .customer .name { font-size: 20px; font-weight: 700; }
+    .customer .meta { font-size: 13px; color: #8B7355; margin-top: 6px; }
+    .customer .meta span { display: inline-block; margin-right: 16px; }
+
+    /* 区块标题 */
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #4A2C2A;
+      padding: 18px 20px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title .bar {
+      width: 4px; height: 16px;
+      background: #B8860B;
+      border-radius: 2px;
+    }
+
+    /* 商品表格 */
+    .items { padding: 0 20px 8px; }
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px dashed #e8dcc8;
+      font-size: 14px;
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-row .name .en { font-size: 12px; color: #8B7355; }
+    .item-row .qty { color: #B8860B; font-weight: 700; white-space: nowrap; }
+
+    /* 赠品区 */
+    .gifts {
+      background: #F0F9F2;
+      border-top: 1px solid #d8e8d8;
+      border-bottom: 1px solid #d8e8d8;
+      padding: 6px 20px 10px;
+    }
+    .gift-title {
+      display: inline-block;
+      margin-top: 10px;
+      background: #07C160;
+      color: #fff;
+      font-size: 12px;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .gift-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px dashed #d8e8d8;
+      font-size: 14px;
+    }
+    .gift-row:last-child { border-bottom: none; }
+    .gift-row .name .en { font-size: 12px; color: #5f8a6e; }
+    .gift-row .qty { color: #07C160; font-weight: 700; white-space: nowrap; }
+
+    /* 祝福语 */
+    .blessing {
+      padding: 22px 20px;
+      text-align: center;
+    }
+    .blessing .foreign {
+      font-size: 16px;
+      font-weight: 700;
+      color: #B8860B;
+      margin-bottom: 6px;
+    }
+    .blessing .cn { font-size: 13px; color: #8B7355; }
+
+    /* 底部联系 */
+    .footer {
+      background: #FBF7F0;
+      border-top: 1px solid #e8dcc8;
+      padding: 14px 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #8B7355;
+    }
+    .footer a { color: #B8860B; text-decoration: none; }
+
+    /* 示例提示（部署后删除） */
+    .demo-note {
+      max-width: 480px;
+      margin: 12px auto 0;
+      background: #FCEBEB;
+      border: 1px dashed #E24B4A;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #A32D2D;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 示例提示：正式使用时删除这个红框 -->
+  <div class="demo-note">【示例页面】这是模板效果预览，请改为真实订单数据后再上传。</div>
+
+  <div class="page">
+    <!-- 顶部 -->
+    <div class="header">
+      <div class="brand">懿泉茶业</div>
+      <div class="brand-en">YIQUAN TEA · ORIGINAL LEAF TEA</div>
+      <div class="status">已发货 · SHIPPED</div>
+    </div>
+
+    <!-- 客户信息 -->
+    <div class="customer">
+      <div class="name" id="customerName">Juan Carlos Miranda</div>
+      <div class="meta">
+        <span id="orderNo">订单号：YQ-20260828-JC01</span>
+        <span id="orderDate">2026-08-28</span>
+      </div>
+    </div>
+
+    <!-- 购买清单 -->
+    <div class="section-title"><span class="bar"></span>您购买的商品 · Your Items</div>
+    <div class="items" id="items"></div>
+
+    <!-- 赠品区 -->
+    <div class="section-title"><span class="bar"></span>您的赠品 · Your Gifts</div>
+    <div class="gifts">
+      <span class="gift-title">🎁 赠品 · Compliments of YiQuanTea</span>
+      <div id="giftList"></div>
+    </div>
+
+    <!-- 祝福语 -->
+    <div class="blessing">
+      <div class="foreign" id="blessingForeign">¡Gracias por tu confianza!</div>
+      <div class="cn" id="blessingCn">感谢您的信任，愿这杯茶带去我们最诚挚的祝福。</div>
+    </div>
+
+    <!-- 底部 -->
+    <div class="footer">
+      懿泉茶业 YiQuanTea ｜ 有疑问请联系：<a href="mailto:tea.yiquan@gmail.com">tea.yiquan@gmail.com</a>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================
+       ★★★ 每个客户只需改这里的数据 ★★★
+       复制本文件 → 改名（juan.html / bence.html）→ 改下面内容
+       ========================================================== */
+    var ORDER = {
+      name: 'Juan Carlos Miranda',
+      orderNo: 'YQ-20260828-JC01',
+      date: '2026-08-28',
+      items: [
+        { name: '武夷山金骏眉', en: 'Jin Jun Mei Black Tea', spec: '100g/罐', qty: '× 1' },
+        { name: '茉莉飘雪', en: 'Jasmine Piaoxue Tea', spec: '100g/罐', qty: '× 1' },
+        { name: '白毫银针', en: 'Baihao Yinzhen White Tea', spec: '50g/罐', qty: '× 2' }
+      ],
+      gifts: [
+        { name: '茉莉飘雪 样品装', en: 'Jasmine Sample', spec: '10g', qty: '× 2' },
+        { name: '懿泉茶巾', en: 'YiQuan Tea Cloth', spec: '', qty: '× 1' }
+      ],
+      blessingForeign: '¡Gracias por tu confianza!',
+      blessingCn: '感谢您的信任，愿这杯茶带去我们最诚挚的祝福。'
+    };
+
+    /* 渲染（以下代码不用动） */
+    document.getElementById('customerName').textContent = ORDER.name;
+    document.getElementById('orderNo').textContent = '订单号：' + ORDER.orderNo;
+    document.getElementById('orderDate').textContent = ORDER.date;
+    document.getElementById('blessingForeign').textContent = ORDER.blessingForeign;
+    document.getElementById('blessingCn').textContent = ORDER.blessingCn;
+
+    var itemsHtml = '';
+    ORDER.items.forEach(function (it) {
+      itemsHtml += '<div class="item-row">' +
+        '<div class="name">' + it.name +
+          (it.en ? '<div class="en">' + it.en + (it.spec ? ' · ' + it.spec : '') + '</div>' : '') +
+        '</div>' +
+        '<div class="qty">' + it.qty + '</div></div>';
+    });
+    document.getElementById('items').innerHTML = itemsHtml;
+
+    var giftHtml = '';
+    ORDER.gifts.forEach(function (g) {
+      giftHtml += '<div class="gift-row">' +
+        '<div class="name">' + g.name +
+          (g.en ? '<div class="en">' + g.en + (g.spec ? ' · ' + g.spec : '') + '</div>' : '') +
+        '</div>' +
+        '<div class="qty">' + g.qty + '</div></div>';
+    });
+    document.getElementById('giftList').innerHTML = giftHtml;
+  </script>
+</body>
+</html>

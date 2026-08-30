@@ -4,6 +4,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "yiquantea-api",
+  // 固定账户 ID：防止在登录了其他 Cloudflare 账户的机器上误部署（2026-08-14 H3 教训）
+  "account_id": "eb39ac57350d776414ec2736668c085e",
   "main": ".open-next/worker.js",
   // OpenNext 硬性要求 compatibility_date ≥ 2024-09-23
   "compatibility_date": "2026-05-01",
@@ -46,13 +48,21 @@
     {
       "binding": "YIQUANTEA_R2",
       "bucket_name": "yiquantea-assets"
+    },
+    {
+      // 2026-08-14 根治：数据库备份专用私有桶（不公开，备份曾泄漏到公开图片桶）
+      "binding": "YIQUANTEA_R2_BACKUPS",
+      "bucket_name": "yiquantea-backups"
     }
   ],
   // 环境变量（非敏感值；密钥一律 wrangler secret put，见文件末尾说明）
   // R6：RATE_LIMIT_PUBLIC/RATE_LIMIT_LOGIN 为死配置已移除（src 零引用，阈值硬编码在调用点）
   "vars": {
     "NEXT_PUBLIC_SITE_URL": "https://yiquantea.com",
-    "BACKUP_RETENTION_DAYS": "7"
+    "BACKUP_RETENTION_DAYS": "7",
+    // 2026-08-14 H3：图片公开地址（R2 自定义域 img.yiquantea.com，方案 B 拍板）
+    // 生产环境此前缺此变量，图片 URL 会拼成 undefined/xxx，上线前必须存在
+    "R2_PUBLIC_URL": "https://img.yiquantea.com"
   }
   // ★密钥（不在代码里写死）：AUTH_SECRET、DATABASE_URL、RESEND_API_KEY、
   // HCAPTCHA_SECRET_KEY、SHOWCASE_PASSWORD_KEY、ADMIN_PASSWORD 等通过

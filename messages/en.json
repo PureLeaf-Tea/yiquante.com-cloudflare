@@ -259,5 +259,22 @@
     "backupManual": "Manual Backup",
     "backupLastTime": "Last Backup",
     "backupStatus": "Backup Status"
+  },
+  "orderPage": {
+    "metaTitle": "{name} · Order (YiQuanTea)",
+    "brand": "YiQuanTea · 懿泉茶业",
+    "statusPending": "Pending",
+    "statusShipped": "Shipped",
+    "orderNoLabel": "Order No.",
+    "dateLabel": "Date",
+    "itemsTitle": "Your Items",
+    "giftsTitle": "Your Gifts",
+    "giftBadge": "GIFT",
+    "blessingTitle": "A Message for You",
+    "contactTitle": "Contact Us",
+    "customerGone": "Dear Customer",
+    "productGone": "Product no longer available",
+    "notFoundTitle": "Order not found or link is invalid",
+    "notFoundDesc": "Please double-check the link, or contact us for help."
   }
 }

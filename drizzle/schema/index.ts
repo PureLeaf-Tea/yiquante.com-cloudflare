@@ -12,6 +12,7 @@
 // 19 首页配置：homepageConfig / heroImages / sellingPoints / certifications / ctaButtons
 // 24 站点内容：navigationItems / socialLinks / pageContents / siteConfig / seoSettings
 // 29 运营支撑：searchKeywords / operationLogs / uploads / productViewLogs / gdprConsents
+// 34  订单模块：customers / orders / orderItems（v2.0 订单管理系统新增）
 
 export * from './users';
 export * from './categories';
@@ -31,3 +32,5 @@ export * from './logs';
 export * from './uploads';
 export * from './analytics';
 export * from './gdpr';
+export * from './customers';
+export * from './orders';

@@ -8,12 +8,14 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
+import { Switch } from '@/components/ui/Switch';
 import { cn } from '@/lib/cn';
 import { toastSuccess, toastError } from '@/components/ui/Toast';
 import { ProductImagesTab } from './ProductImagesTab';
 import { ProductVideosTab } from './ProductVideosTab';
 import { ProductLayoutTab } from './ProductLayoutTab';
 import { ProductShowcaseTab } from './ProductShowcaseTab';
+import { ProductTranslationsTab } from './ProductTranslationsTab';
 
 interface CategoryOption {
   id: string;
@@ -27,6 +29,7 @@ const TABS = [
   { key: 'videos', label: '视频' },
   { key: 'layout', label: '布局' },
   { key: 'showcase', label: '展示区' },
+  { key: 'translations', label: '翻译' },
 ];
 
 export function ProductModal({
@@ -53,6 +56,9 @@ export function ProductModal({
     spec: '',
     sku: '',
     status: 'active',
+    // 订单模块开关：官网前台显示（默认开）/ 订单详情页显示价格询价（默认关）
+    showOnStorefront: true,
+    showPriceInOrder: false,
   });
 
   // 打开时重置
@@ -60,7 +66,18 @@ export function ProductModal({
     if (!open) return;
     setTab('basic');
     setCurrentId(productId);
-    setForm({ nameZh: '', nameEn: '', categoryId: '', priceCNY: '0', priceUSD: '0', spec: '', sku: '', status: 'active' });
+    setForm({
+      nameZh: '',
+      nameEn: '',
+      categoryId: '',
+      priceCNY: '0',
+      priceUSD: '0',
+      spec: '',
+      sku: '',
+      status: 'active',
+      showOnStorefront: true,
+      showPriceInOrder: false,
+    });
 
     // 分类选项
     fetch('/api/categories')
@@ -86,6 +103,8 @@ export function ProductModal({
             spec: String(p.spec || ''),
             sku: String(p.sku || ''),
             status: String(p.status || 'active'),
+            showOnStorefront: Boolean(p.showOnStorefront ?? true),
+            showPriceInOrder: Boolean(p.showPriceInOrder ?? false),
           });
         })
         .catch(() => {});
@@ -119,10 +138,10 @@ export function ProductModal({
         toastSuccess('产品已更新');
         onSaved();
       } else {
-        // 新建：multipart POST（与 05 §4.3 一致）
+        // 新建：multipart POST（与 05 §4.3 一致）；布尔开关转字符串 'true'/'false' 传输
         const fd = new FormData();
         Object.entries(form).forEach(([k, v]) => {
-          if (k !== 'status') fd.append(k, v);
+          if (k !== 'status') fd.append(k, String(v));
         });
         const res = await fetch('/api/products', { method: 'POST', body: fd });
         const data = (await res.json()) as { success?: boolean; error?: string; data?: { id: string } };
@@ -215,6 +234,33 @@ export function ProductModal({
               onChange={set('status')}
             />
           )}
+          {/* 订单模块开关：前台显示（隐藏 ≠ 下架，订单仍可选用） */}
+          <div className="rounded-lg border border-gray-200 px-4 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-gray-700">官网前台显示</p>
+                <p className="mt-0.5 text-xs text-gray-500">关闭后不出现在产品列表/搜索/推荐，但创建订单时仍可选用（赠品/包装罐等）</p>
+              </div>
+              <Switch
+                checked={form.showOnStorefront}
+                onChange={(v) => setForm((f) => ({ ...f, showOnStorefront: v }))}
+                label="官网前台显示"
+              />
+            </div>
+          </div>
+          <div className="rounded-lg border border-gray-200 px-4 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-gray-700">订单详情页显示价格/询价</p>
+                <p className="mt-0.5 text-xs text-gray-500">从订单跳转商品详情页时是否显示价格、询价、推荐等电商元素（默认隐藏）</p>
+              </div>
+              <Switch
+                checked={form.showPriceInOrder}
+                onChange={(v) => setForm((f) => ({ ...f, showPriceInOrder: v }))}
+                label="订单详情页显示价格/询价"
+              />
+            </div>
+          </div>
         </div>
       )}
 
@@ -223,6 +269,7 @@ export function ProductModal({
       {tab === 'videos' && currentId && <ProductVideosTab productId={currentId} />}
       {tab === 'layout' && currentId && <ProductLayoutTab productId={currentId} />}
       {tab === 'showcase' && currentId && <ProductShowcaseTab productId={currentId} />}
+      {tab === 'translations' && currentId && <ProductTranslationsTab productId={currentId} />}
     </Modal>
   );
 }

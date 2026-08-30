@@ -100,6 +100,9 @@ export async function GET(req: NextRequest, { params: paramsPromise }: { params:
     images: images.map((i) => ({ id: i.id, url: i.url, alt: i.alt, sortOrder: i.sortOrder })),
     description: trans?.description ?? '',
     brewingGuide: trans?.brewingGuide ?? '',
+    // 订单模块：产地/工艺（多语言，空则详情页对应模块自动隐藏）
+    origin: trans?.origin ?? '',
+    process: trans?.process ?? '',
     ogTitle: product.ogTitle,
     ogDescription: product.ogDescription,
     ogImage: product.ogImage,
@@ -107,6 +110,9 @@ export async function GET(req: NextRequest, { params: paramsPromise }: { params:
     seoDesc: product.seoDesc,
     seoKeywords: product.seoKeywords,
     showPriceInShowcase: product.showPriceInShowcase,
+    // 订单模块两个开关：前台显示 / 订单详情页显价（后台编辑回调用）
+    showOnStorefront: product.showOnStorefront,
+    showPriceInOrder: product.showPriceInOrder,
     videos: videos.map((v) => ({ url: v.url, type: v.type, title: v.title, thumbnail: v.thumbnail })),
     pageLayout: layout[0] ? { layoutJson: layout[0].layoutJson } : null,
     showcaseCategories: showcaseCats,
@@ -125,6 +131,8 @@ const updateSchema = z.object({
   spec: z.string().max(200).optional().nullable(),
   isRecommended: z.boolean().optional(),
   showPriceInShowcase: z.boolean().optional(),
+  showOnStorefront: z.boolean().optional(),
+  showPriceInOrder: z.boolean().optional(),
   ogTitle: z.string().max(200).optional().nullable(),
   ogDescription: z.string().max(500).optional().nullable(),
   ogImage: z.string().max(500).optional().nullable(),

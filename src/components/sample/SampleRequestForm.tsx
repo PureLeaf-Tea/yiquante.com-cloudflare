@@ -51,9 +51,9 @@ export function SampleRequestForm({ locale }: { locale: string }) {
       });
   }, []);
 
-  // 拉产品列表供选择（一次拉全，种子数据量小）
+  // 拉产品列表供选择（一次拉全，种子数据量小）；storefront=1 只看官网前台可见商品（订单模块）
   useEffect(() => {
-    fetch('/api/products?pageSize=100')
+    fetch('/api/products?pageSize=100&storefront=1')
       .then((r) => r.json() as Promise<{ success?: boolean; data?: Array<{ id: string; nameZh: string; nameEn: string }> }>)
       .then((d) => {
         if (d.success && d.data) setProducts(d.data);

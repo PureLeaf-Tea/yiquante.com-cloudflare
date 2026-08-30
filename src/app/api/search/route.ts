@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
   const { page, pageSize, offset } = getPagination(req);
 
-  // 中英文名模糊匹配（只搜上架产品）
+  // 中英文名模糊匹配（只搜上架且官网前台可见的产品；订单模块：隐藏商品不在前台搜索结果出现）
   const rows = await db
     .select({
       id: products.id,
@@ -26,7 +26,13 @@ export async function GET(req: NextRequest) {
       spec: products.spec,
     })
     .from(products)
-    .where(and(eq(products.status, 'active'), or(like(products.nameZh, `%${q}%`), like(products.nameEn, `%${q}%`))))
+    .where(
+      and(
+        eq(products.status, 'active'),
+        eq(products.showOnStorefront, true),
+        or(like(products.nameZh, `%${q}%`), like(products.nameEn, `%${q}%`))
+      )
+    )
     .limit(pageSize)
     .offset(offset);
 

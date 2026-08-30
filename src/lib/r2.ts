@@ -57,12 +57,12 @@ function getS3Client(): S3Client | null {
 }
 
 // S3 兼容上传
-async function uploadViaS3(key: string, body: ArrayBuffer, contentType: string): Promise<string> {
+async function uploadViaS3(key: string, body: ArrayBuffer, contentType: string, bucketName?: string): Promise<string> {
   const client = getS3Client();
   if (!client) throw new Error('R2 凭据未配置（R2_ACCOUNT_ID / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY）');
   await client.send(
     new PutObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME,
+      Bucket: bucketName || process.env.R2_BUCKET_NAME,
       Key: key,
       Body: new Uint8Array(body),
       ContentType: contentType,
@@ -72,24 +72,24 @@ async function uploadViaS3(key: string, body: ArrayBuffer, contentType: string):
 }
 
 // S3 兼容删除
-async function deleteViaS3(key: string): Promise<void> {
+async function deleteViaS3(key: string, bucketName?: string): Promise<void> {
   const client = getS3Client();
   if (!client) return;
   await client.send(
     new DeleteObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME,
+      Bucket: bucketName || process.env.R2_BUCKET_NAME,
       Key: key,
     })
   );
 }
 
 // S3 兼容读取
-async function getViaS3(key: string): Promise<ArrayBuffer | null> {
+async function getViaS3(key: string, bucketName?: string): Promise<ArrayBuffer | null> {
   const client = getS3Client();
   if (!client) return null;
   const res = await client.send(
     new GetObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME,
+      Bucket: bucketName || process.env.R2_BUCKET_NAME,
       Key: key,
     })
   );
@@ -111,32 +111,35 @@ export function isR2Configured(): boolean {
 }
 
 // ★统一上传：有绑定走绑定，否则走 S3 API；返回公开 URL（凭据缺失时抛错，调用方可降级）
+// bucketName：S3 模式下的目标桶名（默认 R2_BUCKET_NAME）；绑定模式下忽略（桶由绑定决定）
 export async function uploadFile(
   key: string,
   body: ArrayBuffer,
   contentType: string,
-  r2?: R2Bucket
+  r2?: R2Bucket,
+  bucketName?: string
 ): Promise<string> {
   if (r2) return uploadToR2(key, body, contentType, r2);
-  return uploadViaS3(key, body, contentType);
+  return uploadViaS3(key, body, contentType, bucketName);
 }
 
 // 统一删除
-export async function removeFile(key: string, r2?: R2Bucket): Promise<void> {
+export async function removeFile(key: string, r2?: R2Bucket, bucketName?: string): Promise<void> {
   if (r2) return deleteFromR2(key, r2);
-  return deleteViaS3(key);
+  return deleteViaS3(key, bucketName);
 }
 
 // 统一读取
-export async function readFile(key: string, r2?: R2Bucket): Promise<ArrayBuffer | null> {
+export async function readFile(key: string, r2?: R2Bucket, bucketName?: string): Promise<ArrayBuffer | null> {
   if (r2) return getFromR2(key, r2);
-  return getViaS3(key);
+  return getViaS3(key, bucketName);
 }
 
 // 统一列举前缀下的文件（备份列表用）
 export async function listFiles(
   prefix: string,
-  r2?: R2Bucket
+  r2?: R2Bucket,
+  bucketName?: string
 ): Promise<Array<{ key: string; size: number; uploadedAt: Date | null }>> {
   if (r2) {
     const res = await r2.list({ prefix });
@@ -146,7 +149,7 @@ export async function listFiles(
   if (!client) return [];
   const res = await client.send(
     new ListObjectsV2Command({
-      Bucket: process.env.R2_BUCKET_NAME,
+      Bucket: bucketName || process.env.R2_BUCKET_NAME,
       Prefix: prefix,
     })
   );

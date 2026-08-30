@@ -44,6 +44,11 @@ export const products = pgTable(
     ogImage: varchar('og_image', { length: 500 }),
     // 展示区详情页是否显示价格
     showPriceInShowcase: boolean('show_price_in_showcase').default(true).notNull(),
+    // 订单模块：是否在官网前台显示（产品列表/搜索/推荐）；
+    // false = 仅订单可见（赠品/包装罐等非售卖品），与 status（上架/下架）语义区分：前台隐藏 ≠ 停用
+    showOnStorefront: boolean('show_on_storefront').default(true).notNull(),
+    // 订单模块：从订单页跳转详情页时是否显示价格/询价/推荐等电商元素（默认隐藏）
+    showPriceInOrder: boolean('show_price_in_order').default(false).notNull(),
     // SEO（搜索引擎优化）三件套
     seoTitle: varchar('seo_title', { length: 200 }),
     seoDesc: varchar('seo_desc', { length: 500 }),
@@ -84,6 +89,10 @@ export const productTranslations = pgTable(
     locale: varchar('locale', { length: 10 }).notNull(),
     description: text('description').default('').notNull(),
     brewingGuide: text('brewing_guide').default('').notNull(),
+    // 产地（订单模块自适应模板：空则详情页"产地"模块自动隐藏）
+    origin: text('origin').default('').notNull(),
+    // 工艺（订单模块自适应模板：空则详情页"工艺"模块自动隐藏）
+    process: text('process').default('').notNull(),
   },
   (table) => ({
     productIdx: index('idx_translations_product').on(table.productId),

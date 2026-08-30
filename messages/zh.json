@@ -259,5 +259,22 @@
     "backupManual": "手动备份",
     "backupLastTime": "上次备份时间",
     "backupStatus": "备份状态"
+  },
+  "orderPage": {
+    "metaTitle": "{name}的订单（懿泉茶业）",
+    "brand": "懿泉茶业 · YiQuanTea",
+    "statusPending": "待发货",
+    "statusShipped": "已发货",
+    "orderNoLabel": "订单号",
+    "dateLabel": "日期",
+    "itemsTitle": "您购买的商品",
+    "giftsTitle": "您的赠品",
+    "giftBadge": "赠品",
+    "blessingTitle": "祝福",
+    "contactTitle": "联系我们",
+    "customerGone": "尊敬的客户",
+    "productGone": "商品已下架",
+    "notFoundTitle": "订单不存在或链接有误",
+    "notFoundDesc": "请核对链接后重试，或联系您的专属客服。"
   }
 }

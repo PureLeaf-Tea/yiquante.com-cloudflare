@@ -15,6 +15,13 @@
       "when": 1786622943343,
       "tag": "0001_n1-hero-device",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1787977914402,
+      "tag": "0002_outgoing_tarot",
+      "breakpoints": true
     }
   ]
 }

@@ -259,5 +259,22 @@
     "backupManual": "Ручное копирование",
     "backupLastTime": "Последнее копирование",
     "backupStatus": "Статус копирования"
+  },
+  "orderPage": {
+    "metaTitle": "{name} · Заказ (YiQuanTea)",
+    "brand": "YiQuanTea · 懿泉茶业",
+    "statusPending": "Ожидает отправки",
+    "statusShipped": "Отправлен",
+    "orderNoLabel": "Номер заказа",
+    "dateLabel": "Дата",
+    "itemsTitle": "Ваши товары",
+    "giftsTitle": "Ваши подарки",
+    "giftBadge": "ПОДАРОК",
+    "blessingTitle": "Послание для вас",
+    "contactTitle": "Связаться с нами",
+    "customerGone": "Дорогой клиент",
+    "productGone": "Товар больше не доступен",
+    "notFoundTitle": "Заказ не найден или ссылка неверна",
+    "notFoundDesc": "Пожалуйста, проверьте ссылку или свяжитесь с нами."
   }
 }

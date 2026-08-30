@@ -36,3 +36,18 @@ next-env.d.ts
 # ============ OpenNext 构建产物与本地运行时变量（B1 迁移）============
 .open-next
 .dev.vars
+
+# ============ 画板调试临时目录（本地保留，不入库）============
+/.canvas-tmp/
+
+# ============ 验收/调试截图与调试 HTML 快照（本地保留，不入库）============
+/acceptance-*.png
+/hcaptcha-*.png
+/p2*.png
+/p3-*.png
+/p4-*.png
+/p4-*.html
+
+# ============ 临时调试脚本（用后即删，不入库）============
+/.tmp-flag-on.ts
+/.tmp-flag-off.ts

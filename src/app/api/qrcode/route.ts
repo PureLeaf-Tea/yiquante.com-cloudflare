@@ -1,8 +1,9 @@
-﻿// GET /api/qrcode — 二维码生成（05 号文档 §十二）
+﻿// GET /api/qrcode — 二维码生成（05 号文档 §十二；订单模块第 2 期升级为真实二维码）
 // ★仅限本站域名 URL（防被当作开放二维码服务滥用）
-// 开发阶段占位：返回 SVG 占位图；正式实现可用 Workers 原生方案生成
+// 使用 qrcode 依赖生成 SVG 二维码：白底 + 品牌深绿深色码 + 充足留白（需求文档 §5.2 可打印/截图）
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import QRCode from 'qrcode';
 import { fail, rateLimitPublic } from '@/lib/api-helpers';
 
 export const runtime = 'nodejs';
@@ -18,23 +19,27 @@ export async function GET(req: NextRequest) {
   const siteHost = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/^https?:\/\//, '');
   try {
     const parsed = new URL(url);
-    if (parsed.host !== siteHost && !parsed.hostname.endsWith('yiquantea.com')) {
+    if (parsed.host !== siteHost && !parsed.hostname.endsWith('yiquantea.com') && parsed.hostname !== 'localhost' && parsed.hostname !== '127.0.0.1') {
       return fail('仅支持本站链接', 400);
     }
   } catch {
     return fail('url 格式不合法', 400);
   }
 
-  // ★开发占位：返回带 URL 文本的 SVG；上线替换为真正的二维码矩阵生成
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240">
-    <rect width="240" height="240" fill="#ffffff"/>
-    <rect x="20" y="20" width="200" height="200" fill="none" stroke="#1a3a1a" stroke-width="4"/>
-    <text x="120" y="120" font-size="10" text-anchor="middle" fill="#1a3a1a">QR placeholder</text>
-    <text x="120" y="140" font-size="8" text-anchor="middle" fill="#666">${url.slice(0, 40)}</text>
-  </svg>`;
+  // 真实二维码：SVG 输出（矢量，打印/截图不糊）；白底深绿码，留白 2 模块宽
+  let svg: string;
+  try {
+    svg = await QRCode.toString(url, {
+      type: 'svg',
+      margin: 2,
+      width: 280,
+      color: { dark: '#1a3a1a', light: '#ffffff' },
+    });
+  } catch {
+    return fail('二维码生成失败', 500);
+  }
 
   return new NextResponse(svg, {
     headers: { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'public, max-age=86400' },
   });
 }
-

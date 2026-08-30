@@ -25,6 +25,8 @@ import {
   BookOpen,
   LogOut,
   Leaf,
+  ShoppingBag,
+  Contact,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
@@ -42,6 +44,9 @@ interface MenuItem {
 const MENU_ITEMS: MenuItem[] = [
   { label: '仪表盘', href: '/admin/dashboard', icon: LayoutDashboard },
   { label: '产品管理', href: '/admin/products', icon: Package },
+  // 订单模块（需求文档 §5.2/§5.3）：订单管理 + 客户名单，紧邻产品管理
+  { label: '订单管理', href: '/admin/orders', icon: ShoppingBag },
+  { label: '客户名单', href: '/admin/customers', icon: Contact },
   { label: '展示区管理', href: '/admin/showcase', icon: Smartphone, adminOnly: true },
   { label: '询价管理', href: '/admin/inquiries', icon: MessageSquare },
   { label: '样品管理', href: '/admin/samples', icon: ClipboardList },

@@ -24,6 +24,8 @@ export async function GET(req: NextRequest) {
   const categoryId = req.nextUrl.searchParams.get('categoryId');
   const search = req.nextUrl.searchParams.get('search');
   const status = req.nextUrl.searchParams.get('status'); // 'all' 需认证（看下架产品）
+  // 前台场景（如样品表单选品）传 storefront=1：只看官网前台可见商品（订单模块）
+  const storefrontOnly = req.nextUrl.searchParams.get('storefront') === '1';
 
   // 构造过滤条件：默认只查上架产品
   const conditions = [];
@@ -34,6 +36,7 @@ export async function GET(req: NextRequest) {
     conditions.push(eq(products.status, 'active'));
   }
   if (categoryId) conditions.push(eq(products.categoryId, categoryId));
+  if (storefrontOnly) conditions.push(eq(products.showOnStorefront, true));
   if (search) {
     conditions.push(or(like(products.nameZh, `%${search}%`), like(products.nameEn, `%${search}%`)));
   }
@@ -103,6 +106,9 @@ export const POST = withAuth(async (req: NextRequest, _ctx: { params: Record<str
       priceUSD: String(form.get('priceUSD') || '0'),
       spec: String(form.get('spec') || '') || null,
       showPriceInShowcase: form.get('showPriceInShowcase') !== 'false',
+      // 订单模块两个开关：前台显示（默认开）/ 订单详情页显价（默认关）
+      showOnStorefront: form.get('showOnStorefront') !== 'false',
+      showPriceInOrder: form.get('showPriceInOrder') === 'true',
       updatedAt: new Date(),
     })
     .returning();

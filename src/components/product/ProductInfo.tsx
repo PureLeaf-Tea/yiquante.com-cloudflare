@@ -2,7 +2,9 @@
 
 // 产品信息区（ProductInfo.tsx）
 // 名称 / 价格 / 规格 / 操作按钮（加入询价 / 申请样品 / 加入对比）
-// 展示区模式下价格按 showPriceInShowcase 显隐
+// 展示区模式下价格按 showPriceInShowcase 显隐；
+// 订单场景（?from=order）下价格/询价按钮按 showPriceInOrder 显隐（默认隐藏），
+// 样品/对比按钮整体隐藏（需求文档 §4.2：仅保留商品介绍）
 import Link from 'next/link';
 import { ShoppingCart, FlaskConical, Scale, Check } from 'lucide-react';
 import { toastSuccess } from '@/components/ui/Toast';
@@ -20,6 +22,8 @@ export interface ProductInfoData {
   sku: string | null;
   thumbnail: string | null;
   showPriceInShowcase: boolean;
+  // 订单场景是否显示价格/询价（默认 false 隐藏，后台可按商品打开）
+  showPriceInOrder?: boolean;
 }
 
 export function ProductInfo({
@@ -27,11 +31,13 @@ export function ProductInfo({
   locale,
   categoryName,
   showcaseMode = false,
+  orderMode = false,
 }: {
   product: ProductInfoData;
   locale: string;
   categoryName?: string | null;
   showcaseMode?: boolean;
+  orderMode?: boolean;
 }) {
   const { addItem, isInCart } = useInquiryCart();
   const { toggle, isCompared } = useCompare();
@@ -40,8 +46,11 @@ export function ProductInfo({
   const inCart = isInCart(product.id);
   const compared = isCompared(product.id);
   const zh = locale === 'zh';
-  // 展示区模式 + 关闭价格显示 → 隐藏价格
-  const showPrice = !showcaseMode || product.showPriceInShowcase;
+  // 订单场景按 showPriceInOrder（默认隐藏）；展示区 + 关闭价格显示 → 隐藏；官网前台常显
+  const showPrice = orderMode ? !!product.showPriceInOrder : !showcaseMode || product.showPriceInShowcase;
+  // 询价按钮与价格同开关；订单场景下样品/对比按钮不展示（§4.2）
+  const showInquiry = showPrice;
+  const showExtraActions = !orderMode;
 
   return (
     <div className="flex flex-col gap-4">
@@ -64,7 +73,9 @@ export function ProductInfo({
         </p>
       )}
 
+      {(showInquiry || showExtraActions) && (
       <div className="mt-2 flex flex-wrap gap-3">
+        {showInquiry && (
         <button
           type="button"
           onClick={() => {
@@ -82,6 +93,8 @@ export function ProductInfo({
           {inCart ? <Check size={16} aria-hidden="true" /> : <ShoppingCart size={16} aria-hidden="true" />}
           {inCart ? (zh ? '已加入询价' : 'Added') : zh ? '加入询价' : 'Add to Inquiry'}
         </button>
+        )}
+        {showExtraActions && (
         <Link
           href={`/${locale}/sample`}
           className="inline-flex min-h-touch items-center gap-2 rounded-btn border-2 border-brand-gold px-6 text-sm font-medium text-brand-gold hover:bg-brand-gold/10"
@@ -89,6 +102,8 @@ export function ProductInfo({
           <FlaskConical size={16} aria-hidden="true" />
           {zh ? '申请样品' : 'Request Sample'}
         </Link>
+        )}
+        {showExtraActions && (
         <button
           type="button"
           onClick={() =>
@@ -104,7 +119,9 @@ export function ProductInfo({
           <Scale size={16} aria-hidden="true" />
           {compared ? (zh ? '已在对比' : 'Comparing') : zh ? '对比' : 'Compare'}
         </button>
+        )}
       </div>
+      )}
     </div>
   );
 }

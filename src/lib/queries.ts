@@ -1,11 +1,13 @@
 // 首页聚合查询（queries.ts）
 // 服务端组件直接用 Drizzle 查库（不走 HTTP 自调用），后续页面可复用
+import { cache } from 'react';
 import { eq, and, isNull, sql, desc, like, or, inArray } from 'drizzle-orm';
 import { db } from './db';
 import {
   categories, products, productImages, productTranslations, productPageLayouts, productVideos,
   recommendations, showcaseProducts, showcaseCategories, heroImages, sellingPoints, certifications, ctaButtons, reviews,
   pageContents, siteConfig,
+  orders, orderItems, customers,
 } from '@/drizzle/schema';
 
 // Hero 轮播图（激活状态，按 sortOrder）
@@ -26,7 +28,7 @@ async function countSubtreeProducts(categoryId: string): Promise<number> {
       SELECT c.id FROM categories c JOIN subtree s ON c.parent_id = s.id
     )
     SELECT count(*)::int AS n FROM products
-    WHERE category_id IN (SELECT id FROM subtree) AND status = 'active'
+    WHERE category_id IN (SELECT id FROM subtree) AND status = 'active' AND show_on_storefront = true
   `);
   const first = (rows as unknown as { rows?: Array<{ n: number }> }).rows?.[0];
   // neon-http 驱动兼容：结果可能在 .rows 或直接是数组
@@ -125,7 +127,8 @@ export async function getProductList(opts: {
   const { categorySlug, search, page, pageSize } = opts;
   const offset = (page - 1) * pageSize;
 
-  const conditions = [eq(products.status, 'active')];
+  // 前台列表：只查上架且官网前台可见的产品（订单模块：showOnStorefront=false 仅订单可选）
+  const conditions = [eq(products.status, 'active'), eq(products.showOnStorefront, true)];
 
   // 分类筛选：含子树（产品挂在末级分类）
   if (categorySlug) {
@@ -205,7 +208,8 @@ export async function getProductBySlug(slug: string, locale: string) {
         thumbnail: sql<string | null>`(SELECT url FROM product_images WHERE product_id = ${products.id} ORDER BY sort_order LIMIT 1)`,
       })
       .from(products)
-      .where(and(eq(products.id, rec.recommendedId), eq(products.status, 'active')))
+      // 推荐产品同样过滤官网前台可见性（订单模块）
+      .where(and(eq(products.id, rec.recommendedId), eq(products.status, 'active'), eq(products.showOnStorefront, true)))
       .limit(1);
     if (recRows[0]) recommended.push(recRows[0]);
   }
@@ -215,6 +219,9 @@ export async function getProductBySlug(slug: string, locale: string) {
     images,
     description: trans?.description ?? '',
     brewingGuide: trans?.brewingGuide ?? '',
+    // 产地/工艺（订单模块第 4 期自适应模板：空则详情页对应模块自动隐藏）
+    origin: trans?.origin ?? '',
+    process: trans?.process ?? '',
     videos,
     layoutJson: layouts[0]?.layoutJson ?? null,
     recommended,
@@ -279,7 +286,7 @@ export async function getProductsByIds(ids: string[], locale: string) {
       thumbnail: sql<string | null>`(SELECT url FROM product_images WHERE product_id = ${products.id} ORDER BY sort_order LIMIT 1)`,
     })
     .from(products)
-    .where(and(inArray(products.id, ids.slice(0, 3)), eq(products.status, 'active')));
+    .where(and(inArray(products.id, ids.slice(0, 3)), eq(products.status, 'active'), eq(products.showOnStorefront, true)));
 
   // 逐个取当前语言描述（对比表用，回退英文）
   const withDesc = await Promise.all(
@@ -294,3 +301,104 @@ export async function getProductsByIds(ids: string[], locale: string) {
   );
   return withDesc;
 }
+
+// ==================== 订单模块第 3 期：前台客户订单页 /o/[orderNo] ====================
+
+// 公开订单页数据结构（无鉴权：订单号即访问凭证，不返回备注等后台字段）
+export type PublicOrder = {
+  id: string;
+  orderNo: string;
+  date: string;
+  status: string;
+  lang: string;
+  theme: string;
+  blessingForeign: string | null;
+  blessingCn: string | null;
+  // 客户被删除后为 null，前台显示占位文案（需求文档 §5.3）
+  customerName: string | null;
+  // 明细（含商品/赠品，已按 sort 排序）
+  items: PublicOrderItem[];
+  // 页脚联系方式与品牌 Logo（取自主站配置，缺省由页面兜底）
+  contactEmail: string | null;
+  logoUrl: string | null;
+};
+
+export type PublicOrderItem = {
+  id: string;
+  // item（购买商品）/ gift（赠品）
+  type: string;
+  qty: number;
+  sort: number;
+  // 商品被删除后置 null，前台显示"商品已下架"占位（需求文档 §6.3）
+  productId: string | null;
+  nameZh: string | null;
+  nameEn: string | null;
+  slug: string | null;
+  spec: string | null;
+  thumbnail: string | null;
+};
+
+async function fetchOrderPublic(orderNo: string): Promise<PublicOrder | null> {
+  const rows = await db
+    .select({
+      id: orders.id,
+      orderNo: orders.orderNo,
+      date: orders.date,
+      status: orders.status,
+      lang: orders.lang,
+      theme: orders.theme,
+      blessingForeign: orders.blessingForeign,
+      blessingCn: orders.blessingCn,
+      customerName: customers.name,
+    })
+    .from(orders)
+    .leftJoin(customers, eq(orders.customerId, customers.id))
+    .where(eq(orders.orderNo, orderNo))
+    .limit(1);
+  const row = rows[0];
+  if (!row) return null;
+
+  // 明细 + 商品信息 + 首张缩略图（按图序取第一张，同后台订单列表写法）
+  const itemRows = await db
+    .select({
+      id: orderItems.id,
+      type: orderItems.type,
+      qty: orderItems.qty,
+      sort: orderItems.sort,
+      productId: orderItems.productId,
+      nameZh: products.nameZh,
+      nameEn: products.nameEn,
+      slug: products.slug,
+      spec: products.spec,
+      thumbnail: sql<string | null>`(
+        SELECT url FROM product_images
+        WHERE product_id = ${orderItems.productId}
+        ORDER BY sort_order LIMIT 1
+      )`,
+    })
+    .from(orderItems)
+    .leftJoin(products, eq(orderItems.productId, products.id))
+    .where(eq(orderItems.orderId, row.id))
+    .orderBy(orderItems.sort);
+
+  const site = await getSiteConfig();
+
+  return {
+    id: row.id,
+    orderNo: row.orderNo,
+    date: row.date,
+    status: row.status,
+    lang: row.lang,
+    theme: row.theme,
+    blessingForeign: row.blessingForeign,
+    blessingCn: row.blessingCn,
+    customerName: row.customerName,
+    items: itemRows,
+    contactEmail: site?.contactEmail ?? null,
+    logoUrl: site?.logoUrl ?? null,
+  };
+}
+
+// React.cache 去重：同一请求内布局（取 lang）与页面（渲染）共用同一次查询结果；
+// 前台订单页不鉴权，不能复用带 withAuth 的 API，故在此直接查库（与全站服务端查询模式一致）
+export const getOrderPublic = cache(fetchOrderPublic);

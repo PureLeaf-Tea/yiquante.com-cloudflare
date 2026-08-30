@@ -2,6 +2,9 @@
 // ★和老版的区别：老版用 pg_dump + node-cron 备份到本地磁盘；
 // 新版用 Neon 自带的 PITR（时间点恢复，6 小时窗口）做即时恢复，
 // 再用 Workers Cron + Drizzle 导出核心 SQL 存到 R2 做冷备兜底（保留 7 天）。
+// ★2026-08-14 安全根治：本文件目前无调用方（cron 未实现）。将来接入时，
+// 调用方必须传私有备份桶绑定 YIQUANTEA_R2_BACKUPS（yiquantea-backups），
+// 严禁传公开图片桶 YIQUANTEA_R2（yiquantea-assets）——备份含客户数据，曾泄漏。
 import { sql } from 'drizzle-orm';
 import type { DB } from './db';
 import { logger } from './logger';
